@@ -27,20 +27,20 @@ FILES = {
     "previsao_30_dias": "23_previsao_30_dias_corte_22_08.csv",
 }
 
-# Paleta escura inspirada na referência visual: azul-marinho, roxo, ciano, âmbar e rosa.
-BG = "#0B1020"
-PANEL = "#141A2E"
-PANEL_ALT = "#191F36"
-BORDER = "#2B3452"
-PURPLE = "#8B82FF"
-CYAN = "#35D5C6"
-ORANGE = "#FF9D43"
-PINK = "#FF628D"
-BLUE = "#52A9FF"
-YELLOW = "#F8D45C"
-TEXT = "#F2F4FF"
-MUTED = "#A0ABC7"
-GRID = "#29314D"
+# Paleta futurista em grafite, azul-marinho, lilás escuro e rosa neon.
+BG = "#11131B"
+PANEL = "#1B1D2A"
+PANEL_ALT = "#242033"
+BORDER = "#3D354A"
+PURPLE = "#A88BD8"
+CYAN = "#FF5FA2"
+ORANGE = "#C58AB4"
+PINK = "#FF7AB6"
+BLUE = "#314A70"
+YELLOW = "#CDBBD8"
+TEXT = "#F7F1F7"
+MUTED = "#B8AFC1"
+GRID = "#3A3345"
 
 st.markdown(
     f"""
@@ -59,31 +59,31 @@ st.markdown(
       h3 {{ font-size: 1.03rem !important; }}
       p, label, li, [data-testid="stMarkdownContainer"] {{ color: var(--text); }}
       [data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, #10162B 0%, #15152D 58%, #101D31 100%);
-        border-right: 1px solid rgba(139,130,255,.19);
+        background: linear-gradient(180deg, #171A25 0%, #211D2B 58%, #172033 100%);
+        border-right: 1px solid rgba(168,139,216,.19);
       }}
-      [data-testid="stSidebar"] * {{ color: #E8ECFF; }}
-      [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color: #9CA9C8 !important; }}
-      [data-testid="stSidebar"] hr {{ border-color: rgba(139,130,255,.18); margin: 1.1rem 0; }}
-      [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{ color: #AAB6D4; }}
+      [data-testid="stSidebar"] * {{ color: #F4EDF6; }}
+      [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {{ color: #B6AFC0 !important; }}
+      [data-testid="stSidebar"] hr {{ border-color: rgba(168,139,216,.18); margin: 1.1rem 0; }}
+      [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {{ color: #BDB4C7; }}
       [data-testid="stSidebar"] div[role="radiogroup"] {{ gap: .45rem; }}
       [data-testid="stSidebar"] label[data-baseweb="radio"] {{
         border: 1px solid transparent; border-radius: 12px; padding: .62rem .75rem;
         background: rgba(255,255,255,.025); transition: all .15s ease;
       }}
       [data-testid="stSidebar"] label[data-baseweb="radio"]:hover {{
-        background: rgba(139,130,255,.11); border-color: rgba(139,130,255,.26);
+        background: rgba(168,139,216,.11); border-color: rgba(168,139,216,.26);
       }}
       [data-testid="stSidebar"] label[data-baseweb="radio"]:has(input:checked) {{
-        background: linear-gradient(100deg, rgba(139,130,255,.22), rgba(53,213,198,.10));
-        border-color: rgba(139,130,255,.54); box-shadow: inset 3px 0 0 var(--purple);
+        background: linear-gradient(100deg, rgba(168,139,216,.22), rgba(255,95,162,.10));
+        border-color: rgba(168,139,216,.54); box-shadow: inset 3px 0 0 var(--purple);
       }}
-      [data-testid="stSidebar"] label[data-baseweb="radio"] p {{ color: #E8ECFF !important; font-weight: 650; }}
-      [data-testid="stSidebar"] .stButton button {{ background:#242A49; color:#F4F5FF; border:1px solid #3A4266; }}
+      [data-testid="stSidebar"] label[data-baseweb="radio"] p {{ color: #F4EDF6 !important; font-weight: 650; }}
+      [data-testid="stSidebar"] .stButton button {{ background:#292436; color:#F8F1F7; border:1px solid #494054; }}
       .hero {{
         position:relative; overflow:hidden; padding:28px 31px 25px; margin-bottom:21px;
-        background:linear-gradient(112deg,#1A2140 0%,#25234D 53%,#153E4D 100%);
-        border:1px solid rgba(139,130,255,.25); border-radius:22px;
+        background:linear-gradient(112deg,#1A2031 0%,#30253D 53%,#34243A 100%);
+        border:1px solid rgba(168,139,216,.25); border-radius:22px;
         box-shadow:0 18px 42px rgba(0,0,0,.20);
       }}
       .hero:after {{ content:''; position:absolute; right:-65px; top:-155px; width:330px; height:330px;
@@ -91,35 +91,35 @@ st.markdown(
         box-shadow:0 0 0 30px rgba(255,255,255,.035),0 0 0 65px rgba(255,255,255,.025),0 0 0 100px rgba(255,255,255,.016); }}
       .eyebrow {{ text-transform:uppercase; font-size:.67rem; font-weight:800; letter-spacing:.18em; color:{CYAN}; margin-bottom:8px; }}
       .hero-title {{ font-size:clamp(1.75rem,2.9vw,2.55rem); font-weight:850; line-height:1.08; letter-spacing:-.055em; color:#FFF; margin:0 0 10px; }}
-      .hero-subtitle {{ font-size:.91rem; color:#D3D9F4; max-width:900px; line-height:1.55; margin-bottom:15px; }}
-      .hero-meta {{ font-size:.74rem; color:#D3D9F4; font-weight:600; }}
+      .hero-subtitle {{ font-size:.91rem; color:#DBD2E3; max-width:900px; line-height:1.55; margin-bottom:15px; }}
+      .hero-meta {{ font-size:.74rem; color:#DBD2E3; font-weight:600; }}
       .status-line {{ display:flex; flex-wrap:wrap; gap:7px; margin-top:3px; }}
       .status-chip {{ display:inline-block; border-radius:999px; padding:5px 10px; font-size:.68rem; font-weight:750;
-        border:1px solid rgba(255,255,255,.17); background:rgba(255,255,255,.07); color:#F0F2FF; }}
+        border:1px solid rgba(255,255,255,.17); background:rgba(255,255,255,.07); color:#FAF0F6; }}
       .section-kicker {{ color:{PURPLE}; text-transform:uppercase; font-size:.66rem; font-weight:850; letter-spacing:.14em; margin-bottom:4px; }}
       .section-title {{ font-size:1.3rem; font-weight:850; color:{TEXT}; letter-spacing:-.04em; margin-bottom:4px; }}
       .section-subtitle {{ color:{MUTED}; font-size:.83rem; margin-bottom:14px; line-height:1.5; }}
-      .kpi-card {{ background:linear-gradient(145deg,#191F36 0%,#141A2E 100%); border:1px solid {BORDER}; border-radius:16px;
+      .kpi-card {{ background:linear-gradient(145deg,#242033 0%,#1B1D2A 100%); border:1px solid {BORDER}; border-radius:16px;
         padding:17px 18px 15px; min-height:124px; height:100%; box-shadow:0 9px 24px rgba(0,0,0,.12); position:relative; overflow:hidden; }}
       .kpi-card:before {{ content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,{PURPLE},{CYAN}); }}
-      .kpi-label {{ font-size:.7rem; color:#AAB4D0; font-weight:750; letter-spacing:.055em; margin-bottom:11px; }}
+      .kpi-label {{ font-size:.7rem; color:#B8AEC2; font-weight:750; letter-spacing:.055em; margin-bottom:11px; }}
       .kpi-value {{ color:#F7F8FF; font-size:clamp(1.12rem,1.6vw,1.62rem); line-height:1.14; font-weight:850; letter-spacing:-.045em; margin-bottom:9px; overflow-wrap:anywhere; }}
-      .kpi-note {{ color:#8F9BB8; font-size:.69rem; line-height:1.4; }}
-      .insight-card {{ background:linear-gradient(145deg,#191F36,#141A2E); border:1px solid {BORDER}; border-radius:15px; padding:16px 17px; min-height:105px; }}
-      .insight-title {{ color:#F2F4FF; font-weight:800; font-size:.86rem; margin-bottom:7px; }}
-      .insight-text {{ color:#A9B4D0; font-size:.78rem; line-height:1.55; }}
-      .chart-shell {{ background:linear-gradient(145deg,#151B30,#111729); border:1px solid {BORDER}; border-radius:16px; padding:11px 11px 3px; box-shadow:0 9px 25px rgba(0,0,0,.13); }}
+      .kpi-note {{ color:#A79CAF; font-size:.69rem; line-height:1.4; }}
+      .insight-card {{ background:linear-gradient(145deg,#242033,#1B1D2A); border:1px solid {BORDER}; border-radius:15px; padding:16px 17px; min-height:105px; }}
+      .insight-title {{ color:#F7F1F7; font-weight:800; font-size:.86rem; margin-bottom:7px; }}
+      .insight-text {{ color:#B9AFC3; font-size:.78rem; line-height:1.55; }}
+      .chart-shell {{ background:linear-gradient(145deg,#1D1B2A,#111729); border:1px solid {BORDER}; border-radius:16px; padding:11px 11px 3px; box-shadow:0 9px 25px rgba(0,0,0,.13); }}
       .panel {{ background:linear-gradient(145deg,#181E34,#13192C); border:1px solid {BORDER}; border-radius:16px; padding:17px 19px; }}
-      .tiny-note {{ color:#97A3C0; font-size:.74rem; line-height:1.5; }}
-      .footer {{ color:#7784A4; font-size:.69rem; text-align:center; padding-top:22px; line-height:1.7; }}
-      div[data-testid="stMetric"] {{ background:linear-gradient(145deg,#191F36,#141A2E); border:1px solid {BORDER}; border-radius:14px; padding:14px 16px; }}
-      div[data-testid="stMetricLabel"] {{ color:#AAB4D0; }}
-      div[data-testid="stMetricValue"] {{ color:#F6F7FF; font-weight:800; }}
-      div[data-testid="stAlert"] {{ background:#191F36; border-radius:12px; border:1px solid {BORDER}; }}
-      div[data-testid="stExpander"] {{ border:1px solid {BORDER}; border-radius:12px; background:#151B30; }}
+      .tiny-note {{ color:#B5AABD; font-size:.74rem; line-height:1.5; }}
+      .footer {{ color:#93899F; font-size:.69rem; text-align:center; padding-top:22px; line-height:1.7; }}
+      div[data-testid="stMetric"] {{ background:linear-gradient(145deg,#242033,#1B1D2A); border:1px solid {BORDER}; border-radius:14px; padding:14px 16px; }}
+      div[data-testid="stMetricLabel"] {{ color:#B8AEC2; }}
+      div[data-testid="stMetricValue"] {{ color:#F8F2F8; font-weight:800; }}
+      div[data-testid="stAlert"] {{ background:#242033; border-radius:12px; border:1px solid {BORDER}; }}
+      div[data-testid="stExpander"] {{ border:1px solid {BORDER}; border-radius:12px; background:#1D1B2A; }}
       div[data-testid="stDataFrame"] {{ border:1px solid {BORDER}; border-radius:12px; overflow:hidden; }}
       [data-testid="stDateInput"] input, [data-testid="stSelectbox"] div[data-baseweb="select"] > div {{
-        background:#151B30; color:#F2F4FF; border-color:{BORDER}; border-radius:9px;
+        background:#1D1B2A; color:#F7F1F7; border-color:{BORDER}; border-radius:9px;
       }}
       .stButton button {{ border-radius:10px; font-weight:750; }}
       @media (max-width:850px) {{ [data-testid="stMainBlockContainer"] {{ padding:1rem 1rem 2rem; }} .hero {{ padding:22px 19px; }} }}
@@ -257,13 +257,13 @@ NAV_SYMBOLS = {
 with st.sidebar:
     st.markdown(
         '<div style="padding:10px 2px 17px">'
-        '<div style="display:inline-block;padding:5px 9px;border:1px solid rgba(139,130,255,.40);border-radius:8px;'
-        'background:rgba(139,130,255,.12);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:#BDB8FF;font-weight:850">DATA + IA</div>'
+        '<div style="display:inline-block;padding:5px 9px;border:1px solid rgba(168,139,216,.40);border-radius:8px;'
+        'background:rgba(168,139,216,.12);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:#F8A9D0;font-weight:850">DATA + IA</div>'
         '<div style="font-size:1.62rem;font-weight:900;line-height:1.02;letter-spacing:-.055em;margin-top:12px;color:#FFFFFF">DASH<br>VENDAS</div>'
-        '<div style="font-size:.73rem;color:#AAB6D4;margin-top:10px;line-height:1.5">Inteligência comercial<br>Dataset público Olist</div></div>',
+        '<div style="font-size:.73rem;color:#BDB4C7;margin-top:10px;line-height:1.5">Inteligência comercial<br>Dataset público Olist</div></div>',
         unsafe_allow_html=True,
     )
-    st.markdown('<div style="font-size:.63rem;letter-spacing:.15em;font-weight:850;color:#7683A5;margin:6px 0 8px">MENU PRINCIPAL</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:.63rem;letter-spacing:.15em;font-weight:850;color:#9A8FA8;margin:6px 0 8px">MENU PRINCIPAL</div>', unsafe_allow_html=True)
     page = st.radio(
         "Navegação principal",
         options=list(PAGES.keys()),
@@ -272,7 +272,7 @@ with st.sidebar:
         key="dashboard_page",
     )
     st.divider()
-    st.markdown('<div style="font-size:.63rem;letter-spacing:.15em;font-weight:850;color:#7683A5;margin-bottom:8px">ESTADO DOS ARQUIVOS</div>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:.63rem;letter-spacing:.15em;font-weight:850;color:#9A8FA8;margin-bottom:8px">ESTADO DOS ARQUIVOS</div>', unsafe_allow_html=True)
     for key, filename in FILES.items():
         ok = data.get(key) is not None
         dot_color = CYAN if ok else ORANGE
@@ -281,13 +281,13 @@ with st.sidebar:
         st.markdown(
             f'<div style="display:flex;gap:7px;align-items:flex-start;margin:7px 0;line-height:1.35">'
             f'<span style="color:{dot_color};font-size:.67rem">{symbol}</span>'
-            f'<span style="font-size:.65rem;color:#BBC5DF;overflow-wrap:anywhere">{label}</span></div>',
+            f'<span style="font-size:.65rem;color:#CFC4D7;overflow-wrap:anywhere">{label}</span></div>',
             unsafe_allow_html=True,
         )
     st.divider()
     st.markdown(
-        '<div style="font-size:.63rem;letter-spacing:.15em;font-weight:850;color:#7683A5;margin-bottom:7px">RECORTE ANALÍTICO</div>'
-        '<div style="font-size:.75rem;color:#C7CFE5;line-height:1.7">Jan/2017 – Ago/2018<br>Corte provisório: 22/08/2018</div>',
+        '<div style="font-size:.63rem;letter-spacing:.15em;font-weight:850;color:#9A8FA8;margin-bottom:7px">RECORTE ANALÍTICO</div>'
+        '<div style="font-size:.75rem;color:#D8CDDE;line-height:1.7">Jan/2017 – Ago/2018<br>Corte provisório: 22/08/2018</div>',
         unsafe_allow_html=True,
     )
     st.caption("Somente leitura de CSVs locais. Esta interface não consulta nem altera o BigQuery.")
@@ -347,7 +347,7 @@ if page == "Visão geral":
             fig.add_trace(go.Scatter(
                 x=hist_cut["data"], y=pd.to_numeric(hist_cut["faturamento_diario"], errors="coerce"),
                 mode="lines", name="Faturamento diário", line=dict(color=CYAN, width=2.5),
-                fill="tozeroy", fillcolor="rgba(53,213,198,.09)",
+                fill="tozeroy", fillcolor="rgba(255,95,162,.09)",
                 hovertemplate="%{x|%d/%m/%Y}<br>Faturamento: R$ %{y:,.2f}<extra></extra>",
             ))
             show_chart(style_figure(fig, 365), "overview_history")
