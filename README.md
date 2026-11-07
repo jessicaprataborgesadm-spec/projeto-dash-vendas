@@ -150,7 +150,7 @@ Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação later
 4. Validação temporal;
 5. Previsão de 30 dias.
 
-As telas foram revisadas visualmente e os principais indicadores foram comparados com os resultados dos experimentos. O código e os CSVs usados pelo dashboard estão publicados em `dash_vendas_python_streamlit_publicacao/`. As instruções de instalação e execução estão em [README_PYTHON.md](dash_vendas_python_streamlit_publicacao/README_PYTHON.md). A execução em um clone limpo ainda precisa de validação final.
+As telas foram revisadas visualmente e os principais indicadores foram comparados com os resultados dos experimentos. O código e os CSVs usados pelo dashboard estão publicados em `dash_vendas_python_streamlit_publicacao/`. As instruções de instalação e execução estão em [README_PYTHON.md](dash_vendas_python_streamlit_publicacao/README_PYTHON.md). A instalação das dependências e a execução do dashboard foram validadas a partir de um clone limpo do repositório, usando Python 3.14.2.
 
 ## Estrutura atualmente publicada
 
@@ -197,7 +197,7 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [ ] Concluir revisão de qualidade e estabilidade do modelo e do corte temporal.
 - [x] Revisar e versionar os scripts Python, a aplicação Streamlit e os seis CSVs agregados.
 - [x] Documentar as dependências e as instruções de execução em `dash_vendas_python_streamlit_publicacao/README_PYTHON.md`.
-- [ ] Validar a instalação e a execução a partir de um clone limpo do repositório.
+- [x] Validar a instalação e a execução a partir de um clone limpo do repositório.
 - [ ] Implementar a IA Analista depois da validação da camada analítica.
 
 ## Princípios analíticos
