@@ -4,7 +4,7 @@ Projeto de portfólio em **Análise de Dados, Engenharia Analítica e Machine Le
 
 O objetivo é transformar dados transacionais em uma base analítica diária, investigar padrões de vendas e avaliar abordagens para previsão de faturamento, documentando decisões, limitações e resultados.
 
-> **Status:** pipeline analítico e experimentos preditivos desenvolvidos; dashboard Streamlit construído e validado visualmente em ambiente local. A publicação dos scripts Python, CSVs de exemplo e aplicação no repositório ainda está pendente.
+> **Status:** pipeline analítico e experimentos preditivos desenvolvidos; scripts Python, dashboard Streamlit, dependências e seis CSVs agregados publicados no repositório, dentro de `dash_vendas_python_streamlit_publicacao/`. O dashboard ainda não está hospedado nem conectado diretamente ao BigQuery.
 
 ## Problema de negócio
 
@@ -67,7 +67,7 @@ Dashboard Streamlit local
 IA Analista (planejada; não implementada)
 ```
 
-O fluxo Python e o dashboard foram executados localmente usando arquivos CSV exportados. A aplicação ainda não está publicada nem conectada diretamente ao BigQuery em tempo real.
+O fluxo Python e o dashboard utilizam arquivos CSV exportados. Os scripts, a aplicação e os seis CSVs necessários ao dashboard estão versionados em `dash_vendas_python_streamlit_publicacao/`. A aplicação não está hospedada e não consulta o BigQuery em tempo real.
 
 ## Engenharia analítica: SQL e features
 
@@ -150,12 +150,18 @@ Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação later
 4. Validação temporal;
 5. Previsão de 30 dias.
 
-As telas foram revisadas visualmente e os principais indicadores foram comparados com os resultados dos experimentos. O código da aplicação e os arquivos CSV usados pelo dashboard ainda não fazem parte deste repositório; por isso, a execução a partir de um clone público ainda não está documentada.
+As telas foram revisadas visualmente e os principais indicadores foram comparados com os resultados dos experimentos. O código e os CSVs usados pelo dashboard estão publicados em `dash_vendas_python_streamlit_publicacao/`. As instruções de instalação e execução estão em [README_PYTHON.md](dash_vendas_python_streamlit_publicacao/README_PYTHON.md). A execução em um clone limpo ainda precisa de validação final.
 
 ## Estrutura atualmente publicada
 
 ```text
 projeto-dash-vendas/
+├── dash_vendas_python_streamlit_publicacao/
+│   ├── app.py
+│   ├── requirements.txt
+│   ├── README_PYTHON.md
+│   ├── 19_avaliacao_baseline.py ... 23_previsao_30_dias_corte_22_08.py
+│   └── seis arquivos CSV usados nos experimentos e no dashboard
 ├── docs/
 │   ├── analise-variacao-precos.md
 │   └── analise_pico_black_friday_2017.md
@@ -167,7 +173,7 @@ projeto-dash-vendas/
 └── README.md
 ```
 
-O repositório contém atualmente as consultas SQL 01 a 18 e os documentos listados acima. Os scripts Python, CSVs de resultados e o dashboard permanecem locais e precisam passar por uma revisão final antes de serem versionados.
+O repositório contém as consultas SQL 01 a 18, os documentos listados acima e a camada Python/Streamlit com seus seis CSVs agregados. Os arquivos Python estão agrupados em `dash_vendas_python_streamlit_publicacao/` para preservar a estrutura efetivamente publicada.
 
 ## Limitações conhecidas
 
@@ -189,9 +195,9 @@ O repositório contém atualmente as consultas SQL 01 a 18 e os documentos lista
 - [x] Gerar uma previsão retrospectiva simulada de 30 dias.
 - [x] Construir e revisar visualmente o dashboard Streamlit local.
 - [ ] Concluir revisão de qualidade e estabilidade do modelo e do corte temporal.
-- [ ] Revisar e versionar os scripts Python e a aplicação Streamlit.
-- [ ] Documentar as dependências e instruções reproduzíveis de execução.
-- [ ] Preparar a versão pública do projeto e revisar o README após a publicação dos componentes.
+- [x] Revisar e versionar os scripts Python, a aplicação Streamlit e os seis CSVs agregados.
+- [x] Documentar as dependências e as instruções de execução em `dash_vendas_python_streamlit_publicacao/README_PYTHON.md`.
+- [ ] Validar a instalação e a execução a partir de um clone limpo do repositório.
 - [ ] Implementar a IA Analista depois da validação da camada analítica.
 
 ## Princípios analíticos
