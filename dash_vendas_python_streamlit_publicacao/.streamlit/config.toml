@@ -1,0 +1,19 @@
+# Tema claro do Dash Vendas com acentos rosa e lilás.
+
+[theme]
+base = "light"
+primaryColor = "#FF4F9A"
+backgroundColor = "#F1F2F6"
+secondaryBackgroundColor = "#E5E6ED"
+textColor = "#292638"
+borderColor = "#D6D7E0"
+dataframeBorderColor = "#D6D7E0"
+dataframeHeaderBackgroundColor = "#E5E6ED"
+dataframeHeaderTextColor = "#292638"
+showWidgetBorder = true
+
+[theme.sidebar]
+primaryColor = "#FF5FA2"
+backgroundColor = "#171A25"
+secondaryBackgroundColor = "#211D2B"
+textColor = "#F4EDF6"
