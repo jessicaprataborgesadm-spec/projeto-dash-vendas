@@ -103,24 +103,26 @@ st.markdown(
       .kpi-card {{ background:linear-gradient(145deg,#FFFFFF 0%,#F8F5FA 100%); border:1px solid {BORDER}; border-radius:16px;
         padding:17px 18px 15px; min-height:124px; height:100%; box-shadow:0 9px 24px rgba(0,0,0,.12); position:relative; overflow:hidden; }}
       .kpi-card:before {{ content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,{PURPLE},{CYAN}); }}
-      .kpi-label {{ font-size:.7rem; color:#B8AEC2; font-weight:750; letter-spacing:.055em; margin-bottom:11px; }}
-      .kpi-value {{ color:#F7F8FF; font-size:clamp(1.12rem,1.6vw,1.62rem); line-height:1.14; font-weight:850; letter-spacing:-.045em; margin-bottom:9px; overflow-wrap:anywhere; }}
-      .kpi-note {{ color:#A79CAF; font-size:.69rem; line-height:1.4; }}
+      .kpi-label {{ font-size:.7rem; color:#756C80; font-weight:750; letter-spacing:.055em; margin-bottom:11px; }}
+      .kpi-value {{ color:#292638; font-size:clamp(1.12rem,1.6vw,1.62rem); line-height:1.14; font-weight:850; letter-spacing:-.045em; margin-bottom:9px; overflow-wrap:anywhere; }}
+      .kpi-note {{ color:#776F80; font-size:.69rem; line-height:1.4; }}
       .insight-card {{ background:linear-gradient(145deg,#FFFFFF,#F8F5FA); border:1px solid {BORDER}; border-radius:15px; padding:16px 17px; min-height:105px; }}
       .insight-title {{ color:#292638; font-weight:800; font-size:.86rem; margin-bottom:7px; }}
-      .insight-text {{ color:#B9AFC3; font-size:.78rem; line-height:1.55; }}
-      .chart-shell {{ background:linear-gradient(145deg,#1D1B2A,#111729); border:1px solid {BORDER}; border-radius:16px; padding:11px 11px 3px; box-shadow:0 9px 25px rgba(0,0,0,.13); }}
-      .panel {{ background:linear-gradient(145deg,#181E34,#13192C); border:1px solid {BORDER}; border-radius:16px; padding:17px 19px; }}
+      .insight-text {{ color:#675F70; font-size:.78rem; line-height:1.55; }}
+      .chart-shell {{ background:linear-gradient(145deg,#FFFFFF,#F8F5FA); border:1px solid {BORDER}; border-radius:16px; padding:11px 11px 3px; box-shadow:0 9px 25px rgba(0,0,0,.13); }}
+      .panel {{ background:linear-gradient(145deg,#FFFFFF,#F8F5FA); border:1px solid {BORDER}; border-radius:16px; padding:17px 19px; }}
       .tiny-note {{ color:#B5AABD; font-size:.74rem; line-height:1.5; }}
-      .footer {{ color:#93899F; font-size:.69rem; text-align:center; padding-top:22px; line-height:1.7; }}
+      .footer {{ color:#777080; font-size:.69rem; text-align:center; padding-top:22px; line-height:1.7; }}
       div[data-testid="stMetric"] {{ background:linear-gradient(145deg,#FFFFFF,#F8F5FA); border:1px solid {BORDER}; border-radius:14px; padding:14px 16px; }}
-      div[data-testid="stMetricLabel"] {{ color:#B8AEC2; }}
-      div[data-testid="stMetricValue"] {{ color:#F8F2F8; font-weight:800; }}
-      div[data-testid="stAlert"] {{ background:#242033; border-radius:12px; border:1px solid {BORDER}; }}
-      div[data-testid="stExpander"] {{ border:1px solid {BORDER}; border-radius:12px; background:#1D1B2A; }}
-      div[data-testid="stDataFrame"] {{ border:1px solid {BORDER}; border-radius:12px; overflow:hidden; }}
+      div[data-testid="stMetricLabel"] {{ color:#756C80; }}
+      div[data-testid="stMetricValue"] {{ color:#292638; font-weight:800; }}
+      div[data-testid="stAlert"] {{ background:#FFF8FC; color:#292638; border-radius:12px; border:1px solid {BORDER}; }}
+      div[data-testid="stAlert"] * {{ color:#292638; }}
+      div[data-testid="stExpander"] {{ border:1px solid {BORDER}; border-radius:12px; background:#FFFFFF; color:#292638; }}
+      div[data-testid="stExpander"] * {{ color:#292638; }}
+      div[data-testid="stDataFrame"] {{ border:1px solid {BORDER}; border-radius:12px; overflow:hidden; background:#FFFFFF; }}
       [data-testid="stDateInput"] input, [data-testid="stSelectbox"] div[data-baseweb="select"] > div {{
-        background:#1D1B2A; color:#292638; border-color:{BORDER}; border-radius:9px;
+        background:#FFFFFF; color:#292638; border-color:{BORDER}; border-radius:9px;
       }}
       .stButton button {{ border-radius:10px; font-weight:750; }}
       @media (max-width:850px) {{ [data-testid="stMainBlockContainer"] {{ padding:1rem 1rem 2rem; }} .hero {{ padding:22px 19px; }} }}
