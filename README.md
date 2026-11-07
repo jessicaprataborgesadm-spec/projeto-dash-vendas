@@ -1,76 +1,210 @@
 # Projeto Dash Vendas
 
-Projeto de portfólio em análise de dados com foco em SQL, BigQuery, Python e Machine Learning, utilizando dados públicos de e-commerce brasileiro.
+Projeto de portfólio em **Análise de Dados, Engenharia Analítica e Machine Learning**, desenvolvido com dados públicos do e-commerce brasileiro da Olist.
 
-O objetivo é desenvolver um pipeline analítico para investigar o comportamento das vendas e construir uma base que permita analisar e prever o faturamento diário.
+O objetivo é transformar dados transacionais em uma base analítica diária, investigar padrões de vendas e avaliar abordagens para previsão de faturamento, documentando decisões, limitações e resultados.
+
+> **Status:** pipeline analítico e experimentos preditivos desenvolvidos; dashboard Streamlit construído e validado visualmente em ambiente local. A publicação dos scripts Python, CSVs de exemplo e aplicação no repositório ainda está pendente.
 
 ## Problema de negócio
 
-Como transformar dados transacionais de e-commerce em informações confiáveis para acompanhar o desempenho das vendas e apoiar o planejamento por meio de previsões de faturamento?
+Como transformar dados transacionais de e-commerce em informações confiáveis para acompanhar o comportamento das vendas e apoiar o planejamento por meio de previsões de faturamento diário?
 
 ## Fonte de dados
 
 **Brazilian E-Commerce Public Dataset by Olist**
 
-- Fonte: [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
-- Dados públicos de pedidos e itens de pedidos de um marketplace brasileiro.
-- Período observado nas tabelas já auditadas: setembro de 2016 a outubro de 2018.
+- Fonte: [Kaggle — Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+- Dados públicos de pedidos, itens de pedidos e outras dimensões de um marketplace brasileiro.
+- As tabelas de pedidos e itens foram carregadas no BigQuery no projeto `projeto-dash-vendas`, dataset `raw`, região `southamerica-east1`.
+- A cobertura observada nas fontes de pedidos auditadas vai de setembro de 2016 a outubro de 2018. A cobertura não é uniforme em todo o período.
 
-## Tecnologias
+## Definição da métrica
 
-- **BigQuery:** armazenamento e consultas analíticas.
-- **SQL:** exploração, validação e transformação dos dados.
-- **Python:** análise de dados e desenvolvimento do modelo preditivo.
-- **Machine Learning:** previsão de faturamento diário.
-- **Streamlit:** dashboard interativo planejado.
-- **GitHub:** versionamento e documentação do projeto.
+A primeira versão da série utiliza uma **métrica operacional de valor dos itens**:
 
-## Arquitetura planejada
+- considera pedidos cujo status atual na fonte é `delivered`;
+- soma `olist_order_items.price`;
+- agrupa pela data de compra: `DATE(order_purchase_timestamp)`;
+- exclui `freight_value`;
+- granularidade final: **uma linha por dia corrido**.
 
-Fonte de dados → BigQuery (RAW) → SQL/ELT → Base analítica diária → Python e avaliação do modelo → Previsões → Dashboard.
+Essa definição foi adotada para o experimento preditivo e **não representa faturamento contábil ou receita líquida reconciliada**. O status atual do pedido pode refletir eventos posteriores à compra, por isso essa limitação precisa acompanhar a interpretação dos resultados.
 
-A arquitetura será implementada e validada progressivamente.
+## Arquitetura e fluxo implementado
 
-## Etapas do projeto
+```text
+Dataset público Olist (Kaggle)
+          |
+          v
+BigQuery — camada RAW
+  |-- olist_orders
+  |-- olist_order_items
+          |
+          v
+SQL / ELT
+  |-- auditorias de qualidade e cobertura
+  |-- base diária de valor dos itens
+  |-- features temporais e de calendário
+          |
+          v
+Exportação da base analítica
+          |
+          v
+Python
+  |-- baseline
+  |-- Random Forest
+  |-- validação temporal
+  |-- previsão recursiva de 30 dias
+          |
+          v
+Arquivos de resultados (CSV)
+          |
+          v
+Dashboard Streamlit local
+          |
+          v
+IA Analista (planejada; não implementada)
+```
 
-- [x] Carregar as tabelas iniciais de pedidos e itens no BigQuery.
-- [x] Auditar aspectos iniciais da qualidade e da granularidade dessas tabelas.
-- [x] Realizar uma investigação exploratória complementar sobre variações de preços.
-- [ ] Organizar e documentar as consultas SQL de validação.
-- [ ] Definir e validar a métrica de faturamento diário.
-- [ ] Construir e validar a base analítica diária.
-- [ ] Criar features temporais e um modelo baseline.
-- [ ] Avaliar a previsão para os próximos 30 dias.
-- [ ] Desenvolver o dashboard interativo.
-- [ ] Documentar os resultados, as limitações e as recomendações.
+O fluxo Python e o dashboard foram executados localmente usando arquivos CSV exportados. A aplicação ainda não está publicada nem conectada diretamente ao BigQuery em tempo real.
 
-## Princípios analíticos
+## Engenharia analítica: SQL e features
 
-- Validar a granularidade antes de agregar ou relacionar tabelas.
-- Investigar duplicidades, valores ausentes e inconsistências.
-- Verificar possíveis multiplicações de registros após JOINs.
-- Diferenciar fatos observados, hipóteses e conclusões.
-- Evitar vazamento de dados na construção de modelos preditivos.
-- Documentar as decisões e limitações das análises.
+As consultas SQL versionadas neste repositório cobrem auditorias iniciais das tabelas RAW, análise de status e cobertura, construção da série diária e criação/validação das features.
 
-## Status atual
+Features utilizadas nos experimentos:
 
-O projeto está na etapa de exploração e validação das tabelas de origem. A investigação de preços foi documentada como estudo complementar.
+- `dia_semana`: dia da semana da data prevista;
+- `media_7d`: média dos sete dias anteriores, sem incluir o próprio dia;
+- `faturamento_ano_anterior`: valor observado na mesma data do ano anterior, quando há cobertura disponível;
+- flags e rótulos de calendário, incluindo feriados e datas comerciais relevantes.
 
-A próxima prioridade é definir a métrica de faturamento e construir uma base diária validada antes de avançar para o modelo preditivo e o dashboard.
+Na previsão recursiva de vários dias, a `media_7d` é atualizada com previsões anteriores, nunca com faturamento real futuro.
 
-## Estrutura do repositório
+## Experimentos preditivos
 
+### Baseline
 
+Foi construído um baseline simples usando a média dos sete dias anteriores como previsão constante durante o horizonte de teste. Ele funciona como referência para avaliar se um modelo mais elaborado agrega valor.
+
+No teste histórico de 01/07/2018 a 30/07/2018:
+
+| Métrica | Baseline |
+|---|---:|
+| MAE | R$ 6.873,94 |
+| RMSE | R$ 8.368,83 |
+| WAPE | 25,05% |
+
+### Random Forest
+
+O primeiro modelo de Machine Learning foi um Random Forest, treinado com features temporais e de calendário.
+
+No mesmo teste histórico de 01/07/2018 a 30/07/2018:
+
+| Métrica | Random Forest |
+|---|---:|
+| MAE | R$ 6.390,11 |
+| RMSE | R$ 7.734,12 |
+| WAPE | 23,29% |
+
+Nesse teste específico, o Random Forest apresentou WAPE 1,76 ponto percentual menor que o baseline.
+
+### Validação temporal
+
+Foram avaliadas cinco janelas históricas de 30 dias, sem incluir o teste original de julho:
+
+| Resultado agregado das cinco janelas | Baseline | Random Forest |
+|---|---:|---:|
+| MAE | R$ 7.757,00 | R$ 6.966,16 |
+| RMSE | R$ 9.539,33 | R$ 8.617,60 |
+| WAPE | 25,27% | 22,70% |
+
+O Random Forest teve WAPE menor em **três das cinco janelas**, mas não venceu em todas. O resultado agregado é promissor, porém não deve ser interpretado como garantia de desempenho futuro.
+
+Uma janela recente de 31/07/2018 a 29/08/2018 apresentou WAPE de 36,39% para o Random Forest e 38,67% para o baseline. Esse período foi sinalizado como potencialmente afetado por maturidade/cobertura incompleta dos pedidos e não deve ser usado isoladamente para declarar o modelo vencedor.
+
+## Previsão simulada de 30 dias
+
+Após observar uma queda acentuada no valor associado a pedidos atualmente `delivered` no fim de agosto de 2018, foi adotado **22/08/2018 como corte provisório** para uma simulação retrospectiva.
+
+- treinamento até: 22/08/2018;
+- horizonte: 23/08/2018 a 21/09/2018;
+- previsão total Random Forest: R$ 907.929,42;
+- previsão total baseline: R$ 840.885,00.
+
+Esses valores são previsões simuladas. Não há faturamento realizado maduro no arquivo de saída para calcular MAE, RMSE ou WAPE desse horizonte. O corte de 22/08/2018 é provisório e deve ser interpretado como uma decisão de controle de qualidade da série, não como uma regra definitiva já comprovada.
+
+## Análises documentadas
+
+- [Análise de variação de preços](docs/analise-variacao-precos.md): investigação exploratória do histórico de preços de um produto.
+- [Análise do pico da Black Friday de 2017](docs/analise_pico_black_friday_2017.md): investigação do pico de 24/11/2017. O registro foi mantido na série; os dados são compatíveis com aumento de volume associado à Black Friday, sem afirmação causal definitiva.
+
+## Dashboard
+
+Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação lateral e cinco áreas:
+
+1. Visão geral;
+2. Histórico;
+3. Modelos;
+4. Validação temporal;
+5. Previsão de 30 dias.
+
+As telas foram revisadas visualmente e os principais indicadores foram comparados com os resultados dos experimentos. O código da aplicação e os arquivos CSV usados pelo dashboard ainda não fazem parte deste repositório; por isso, a execução a partir de um clone público ainda não está documentada.
+
+## Estrutura atualmente publicada
+
+```text
 projeto-dash-vendas/
 ├── docs/
-│   └── analise-variacao-precos.md
+│   ├── analise-variacao-precos.md
+│   └── analise_pico_black_friday_2017.md
+├── sql/
+│   ├── 01_auditoria_order_items.sql
+│   ├── ...
+│   └── 18_feature_faturamento_ano_anterior.sql
 ├── .gitignore
 └── README.md
 ```
 
-A estrutura será ampliada conforme novas etapas forem concluídas.
+O repositório contém atualmente as consultas SQL 01 a 18 e os documentos listados acima. Os scripts Python, CSVs de resultados e o dashboard permanecem locais e precisam passar por uma revisão final antes de serem versionados.
 
-## Limitações
+## Limitações conhecidas
 
-Os resultados dependerão da qualidade, da cobertura temporal e das características do dataset público. As métricas de faturamento, os filtros de pedidos e as regras de agregação ainda precisam ser definidos e validados antes da construção da base diária.
+- O dataset é histórico e termina em 2018; a simulação não é uma previsão do mercado atual.
+- A métrica baseada no status atual `delivered` não equivale a faturamento contábil reconciliado.
+- A cobertura temporal é irregular em partes do dataset, especialmente no fim da série.
+- O corte em 22/08/2018 é provisório.
+- A validação temporal contém poucas janelas e o Random Forest não venceu todas.
+- A análise da Black Friday foi feita sobre a base diária agregada; não foi concluída a decomposição dos pedidos individuais diretamente nas tabelas RAW.
+- A IA Analista com Gemini/Vertex AI é uma possibilidade planejada e ainda não foi implementada.
+
+## Próximas etapas
+
+- [x] Carregar e auditar as tabelas iniciais de pedidos e itens no BigQuery.
+- [x] Construir a base diária e as features temporais.
+- [x] Executar e avaliar um baseline.
+- [x] Treinar e avaliar o primeiro Random Forest.
+- [x] Realizar validação temporal em cinco janelas.
+- [x] Gerar uma previsão retrospectiva simulada de 30 dias.
+- [x] Construir e revisar visualmente o dashboard Streamlit local.
+- [ ] Concluir revisão de qualidade e estabilidade do modelo e do corte temporal.
+- [ ] Revisar e versionar os scripts Python e a aplicação Streamlit.
+- [ ] Documentar as dependências e instruções reproduzíveis de execução.
+- [ ] Preparar a versão pública do projeto e revisar o README após a publicação dos componentes.
+- [ ] Implementar a IA Analista depois da validação da camada analítica.
+
+## Princípios analíticos
+
+- Validar a granularidade antes de agregar ou relacionar tabelas.
+- Verificar cardinalidade e possíveis duplicações após JOINs.
+- Investigar NULLs, duplicidades, valores negativos, extremos e cobertura temporal.
+- Diferenciar fato observado, hipótese, inferência e causalidade.
+- Evitar vazamento de dados na preparação das features e na avaliação temporal.
+- Comparar modelos com o mesmo horizonte e o mesmo conjunto de teste.
+- Não excluir pontos extremos sem evidência.
+- Documentar decisões, limitações e critérios de validação.
+
+---
+
+**Projeto de portfólio com dados públicos.** Resultados e conclusões se limitam às definições, recortes e validações descritos neste documento.
