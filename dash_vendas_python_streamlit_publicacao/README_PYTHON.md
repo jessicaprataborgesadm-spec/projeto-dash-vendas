@@ -37,7 +37,9 @@ python 22_validacao_janela_recente.py
 python 23_previsao_30_dias_corte_22_08.py
 ```
 
-A base `base_treinamento_faturamento_teste.csv` é a exportação agregada da SQL 18. Para atualizar os resultados, exporte novamente a saída da consulta e substitua esse arquivo, preservando o nome e as colunas esperadas.
+A base `base_treinamento_faturamento_teste.csv` é a exportação agregada da SQL 18 e mantém o período de 01/01/2017 a 29/08/2018. Ela é compartilhada pelos experimentos de validação histórica e pela simulação de previsão. Para atualizar os resultados, exporte novamente a saída da consulta e substitua esse arquivo, preservando o nome e as colunas esperadas.
+
+**Importante sobre os cortes:** os testes históricos precisam das observações até 29/08/2018 para avaliar a janela recente. Já o script `23_previsao_30_dias_corte_22_08.py` filtra a base e treina somente com datas até 22/08/2018. Para prever 23 a 29/08, usa apenas as features conhecidas de calendário e faturamento do ano anterior; não usa o `faturamento_diario` real dessas datas nem atualiza `media_7d` com valores realizados futuros.
 
 Os scripts geram os CSVs de resultados utilizados pelo dashboard. A previsão de vários dias atualiza a média móvel com previsões anteriores, sem usar faturamento real futuro.
 
