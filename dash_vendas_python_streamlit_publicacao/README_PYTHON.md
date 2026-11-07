@@ -35,13 +35,14 @@ python 20_modelo_random_forest_teste.py
 python 21_validacao_temporal_modelos.py
 python 22_validacao_janela_recente.py
 python 23_previsao_30_dias_corte_22_08.py
+python 24_previsao_30_dias_corte_20_08.py
 ```
 
 A base `base_treinamento_faturamento_teste.csv` é a exportação agregada da SQL 18 e mantém o período de 01/01/2017 a 29/08/2018. Ela é compartilhada pelos experimentos de validação histórica e pela simulação de previsão. Para atualizar os resultados, exporte novamente a saída da consulta e substitua esse arquivo, preservando o nome e as colunas esperadas.
 
 **Importante sobre os cortes:** os testes históricos precisam das observações até 29/08/2018 para avaliar a janela recente. Já o script `23_previsao_30_dias_corte_22_08.py` filtra a base e treina somente com datas até 22/08/2018. Para prever 23 a 29/08, usa apenas as features conhecidas de calendário e faturamento do ano anterior; não usa o `faturamento_diario` real dessas datas nem atualiza `media_7d` com valores realizados futuros.
 
-Uma comparação de sensibilidade dos cortes mostrou variação de -4,77% no valor médio dos últimos sete dias em 20/08, contra -23,26% em 22/08 e quedas ainda maiores nos cortes posteriores. Por isso, 20/08/2018 é recomendado como candidato mais prudente para o próximo experimento. **Essa recomendação ainda não foi aplicada ao script 23 nem ao CSV publicado**, que continuam representando a simulação com corte em 22/08/2018. A comparação é descritiva e não comprova, sozinha, um ponto de mudança estatístico.
+Uma comparação de sensibilidade dos cortes mostrou variação de -4,77% no valor médio dos últimos sete dias em 20/08, contra -23,26% em 22/08 e quedas ainda maiores nos cortes posteriores. Por isso, 20/08/2018 foi escolhido como candidato mais prudente para um experimento separado. O script `24_previsao_30_dias_corte_20_08.py` gera a nova simulação em arquivo próprio, sem sobrescrever o script ou CSV da simulação anterior. **A saída do script 24 ainda precisa ser gerada e validada; até lá, o dashboard continua usando a simulação com corte em 22/08/2018.** A comparação é descritiva e não comprova, sozinha, um ponto de mudança estatístico.
 
 Os scripts geram os CSVs de resultados utilizados pelo dashboard. A previsão de vários dias atualiza a média móvel com previsões anteriores, sem usar faturamento real futuro.
 
