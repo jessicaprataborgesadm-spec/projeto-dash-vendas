@@ -41,6 +41,8 @@ A base `base_treinamento_faturamento_teste.csv` é a exportação agregada da SQ
 
 **Importante sobre os cortes:** os testes históricos precisam das observações até 29/08/2018 para avaliar a janela recente. Já o script `23_previsao_30_dias_corte_22_08.py` filtra a base e treina somente com datas até 22/08/2018. Para prever 23 a 29/08, usa apenas as features conhecidas de calendário e faturamento do ano anterior; não usa o `faturamento_diario` real dessas datas nem atualiza `media_7d` com valores realizados futuros.
 
+Uma comparação de sensibilidade dos cortes mostrou variação de -4,77% no valor médio dos últimos sete dias em 20/08, contra -23,26% em 22/08 e quedas ainda maiores nos cortes posteriores. Por isso, 20/08/2018 é recomendado como candidato mais prudente para o próximo experimento. **Essa recomendação ainda não foi aplicada ao script 23 nem ao CSV publicado**, que continuam representando a simulação com corte em 22/08/2018. A comparação é descritiva e não comprova, sozinha, um ponto de mudança estatístico.
+
 Os scripts geram os CSVs de resultados utilizados pelo dashboard. A previsão de vários dias atualiza a média móvel com previsões anteriores, sem usar faturamento real futuro.
 
 ## Definição e limites dos dados
