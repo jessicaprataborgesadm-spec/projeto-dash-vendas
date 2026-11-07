@@ -19,7 +19,7 @@ Cuidados metodológicos:
 
 Entrada padrão: base_treinamento_faturamento_teste.csv
 Script do modelo: 20_modelo_random_forest_teste.py
-Saída padrão: 23_previsao_30_dias_corte_22_08.csv
+Saída padrão: 24_previsao_30_dias_corte_20_08.csv
 """
 from __future__ import annotations
 
