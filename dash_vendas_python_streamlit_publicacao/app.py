@@ -116,11 +116,20 @@ st.markdown(
       div[data-testid="stMetric"] {{ background:linear-gradient(145deg,#FFFFFF,#F8F5FA); border:1px solid {BORDER}; border-radius:14px; padding:14px 16px; }}
       div[data-testid="stMetricLabel"] {{ color:#756C80; }}
       div[data-testid="stMetricValue"] {{ color:#292638; font-weight:800; }}
-      div[data-testid="stAlert"] {{ background:#FFF8FC; color:#292638; border-radius:12px; border:1px solid {BORDER}; }}
-      div[data-testid="stAlert"] * {{ color:#292638; }}
+      [data-testid="stAlert"] {{
+        background:#E5E6ED !important; color:#292638 !important;
+        border:1px solid #D6D7E0 !important; border-radius:12px;
+      }}
+      [data-testid="stAlert"] * {{ color:#292638 !important; }}
       div[data-testid="stExpander"] {{ border:1px solid {BORDER}; border-radius:12px; background:#FFFFFF; color:#292638; }}
       div[data-testid="stExpander"] * {{ color:#292638; }}
-      div[data-testid="stDataFrame"] {{ border:1px solid {BORDER}; border-radius:12px; overflow:hidden; background:#FFFFFF; }}
+      div[data-testid="stDataFrame"], div[data-testid="stTable"] {{
+        border:1px solid #D6D7E0 !important; border-radius:12px; overflow:hidden;
+        background:#E5E6ED !important;
+      }}
+      div[data-testid="stDataFrame"] > div, div[data-testid="stTable"] > div {{
+        background:#E5E6ED !important;
+      }}
       [data-testid="stDateInput"] input, [data-testid="stSelectbox"] div[data-baseweb="select"] > div {{
         background:#FFFFFF; color:#292638; border-color:{BORDER}; border-radius:9px;
       }}
