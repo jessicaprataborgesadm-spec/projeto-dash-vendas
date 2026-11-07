@@ -139,7 +139,7 @@ A base CSV usada pelos experimentos mantém observações até 29/08/2018 porque
 
 ### Sensibilidade do corte temporal
 
-Foi comparada a média dos sete dias encerrados em cada data de corte com a média dos 28 dias anteriores. A variação do valor diário médio foi de +5,61% em 15/08, -0,74% em 18/08, -4,77% em 20/08, -23,26% em 22/08, -38,59% em 24/08, -50,89% em 26/08 e -77,32% em 29/08. O resultado indica uma deterioração acentuada entre 20/08 e 22/08. **20/08/2018 passa a ser recomendado como candidato mais prudente para o próximo experimento de corte**, mas ainda não foi aplicado ao script publicado: os totais e o CSV desta seção continuam sendo da simulação com corte em 22/08/2018. A comparação é um diagnóstico descritivo, não uma detecção estatística definitiva de mudança de regime.
+Foi comparada a média dos sete dias encerrados em cada data de corte com a média dos 28 dias anteriores. A variação do valor diário médio foi de +5,61% em 15/08, -0,74% em 18/08, -4,77% em 20/08, -23,26% em 22/08, -38,59% em 24/08, -50,89% em 26/08 e -77,32% em 29/08. O resultado indica uma deterioração acentuada entre 20/08 e 22/08. **20/08/2018 foi recomendado como candidato mais prudente para um experimento separado de corte.** Para preservar a rastreabilidade, foi criado o script `24_previsao_30_dias_corte_20_08.py`, que treina até 20/08 e prevê 21/08 a 19/09. Sua execução e validação ainda estão pendentes; os totais e o CSV desta seção continuam sendo da simulação histórica com corte em 22/08/2018, preservada pelo script 23. A comparação é um diagnóstico descritivo, não uma detecção estatística definitiva de mudança de regime.
 
 ## Análises documentadas
 
@@ -166,7 +166,7 @@ projeto-dash-vendas/
 │   ├── app.py
 │   ├── requirements.txt
 │   ├── README_PYTHON.md
-│   ├── 19_avaliacao_baseline.py ... 23_previsao_30_dias_corte_22_08.py
+│   ├── 19_avaliacao_baseline.py ... 24_previsao_30_dias_corte_20_08.py
 │   └── seis arquivos CSV usados nos experimentos e no dashboard
 ├── docs/
 │   ├── analise-variacao-precos.md
