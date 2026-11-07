@@ -170,6 +170,45 @@ def number(value, digits=2) -> str:
     return f"{float(value):,.{digits}f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
+def integer(value) -> str:
+    if value is None or pd.isna(value):
+        return "N/D"
+    return f"{int(value):,}".replace(",", ".")
+
+
+def format_table(
+    df: pd.DataFrame,
+    currency_columns=(),
+    percentage_columns=(),
+    percentage_point_columns=(),
+    integer_columns=(),
+):
+    """Aplica formato brasileiro às unidades exibidas nas tabelas, sem alterar os dados."""
+    formatters = {}
+
+    for column in currency_columns:
+        if column in df.columns:
+            formatters[column] = brl
+
+    for column in percentage_columns:
+        if column in df.columns:
+            formatters[column] = pct
+
+    for column in percentage_point_columns:
+        if column in df.columns:
+            formatters[column] = (
+                lambda value: f"{number(value)} p.p."
+                if value is not None and pd.notna(value)
+                else "N/D"
+            )
+
+    for column in integer_columns:
+        if column in df.columns:
+            formatters[column] = integer
+
+    return df.style.format(formatters, na_rep="N/D")
+
+
 def metrics_html(label: str, value: str, note: str = ""):
     note_html = f'<div class="kpi-note">{note}</div>' if note else ""
     st.markdown(
@@ -411,7 +450,15 @@ elif page == "Histórico":
             display = filtered.copy()
             display["data"] = display["data"].dt.strftime("%d/%m/%Y")
             display = display.rename(columns={"data":"Data", "faturamento_diario":"Faturamento diário", "qtd_pedidos_entregues":"Pedidos delivered", "qtd_linhas_itens_entregues":"Linhas de itens"})
-            st.dataframe(display, use_container_width=True, hide_index=True)
+            st.dataframe(
+                format_table(
+                    display,
+                    currency_columns=["Faturamento diário"],
+                    integer_columns=["Pedidos delivered", "Linhas de itens"],
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
     st.info("O histórico exibido é limitado provisoriamente a 22/08/2018 para evitar interpretar a queda no fim da série como uma queda de vendas confirmada.")
 
 elif page == "Desempenho dos modelos":
@@ -440,7 +487,18 @@ elif page == "Desempenho dos modelos":
             display = comp[cols].copy()
             display["data"] = display["data"].dt.strftime("%d/%m/%Y")
             display = display.rename(columns={"data":"Data", "faturamento_real":"Realizado", "previsao_random_forest":"Random Forest", "previsao_baseline":"Baseline", "erro_modelo":"Erro RF", "erro_absoluto_modelo":"Erro absoluto RF", "erro_baseline":"Erro baseline", "erro_absoluto_baseline":"Erro absoluto baseline"})
-            st.dataframe(display, use_container_width=True, hide_index=True)
+            st.dataframe(
+                format_table(
+                    display,
+                    currency_columns=[
+                        "Realizado", "Random Forest", "Baseline",
+                        "Erro RF", "Erro absoluto RF",
+                        "Erro baseline", "Erro absoluto baseline",
+                    ],
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
 
 elif page == "Validação temporal":
     section_header("ROBUSTEZ TEMPORAL", "O desempenho se mantém no tempo?", "Cinco janelas de 30 dias. O teste inicial de julho não está incluído neste agregado.")
@@ -466,7 +524,17 @@ elif page == "Validação temporal":
         display = windows[[c for c in display_cols if c in windows.columns]].copy()
         display = display.rename(columns={"janela":"Janela", "linhas_treinamento":"Linhas treino", "mae_random_forest":"MAE RF", "rmse_random_forest":"RMSE RF", "wape_random_forest_pct":"WAPE RF (%)", "mae_baseline":"MAE baseline", "rmse_baseline":"RMSE baseline", "wape_baseline_pct":"WAPE baseline (%)", "diferenca_wape_pontos_pct":"Diferença WAPE (p.p.)"})
         with st.expander("Ver números de cada janela"):
-            st.dataframe(display, use_container_width=True, hide_index=True)
+            st.dataframe(
+                format_table(
+                    display,
+                    currency_columns=["MAE RF", "RMSE RF", "MAE baseline", "RMSE baseline"],
+                    percentage_columns=["WAPE RF (%)", "WAPE baseline (%)"],
+                    percentage_point_columns=["Diferença WAPE (p.p.)"],
+                    integer_columns=["Linhas treino"],
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
 
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
     section_header("DIAGNÓSTICO SEPARADO", "Janela recente · 31/07 a 29/08/2018", "Este diagnóstico não está incluído no agregado de cinco janelas.")
@@ -508,7 +576,18 @@ elif page == "Previsão 30 dias":
         with st.expander("Ver previsões diárias e features"):
             display = forecast.copy()
             display["data"] = display["data"].dt.strftime("%d/%m/%Y")
-            st.dataframe(display, use_container_width=True, hide_index=True)
+            st.dataframe(
+                format_table(
+                    display,
+                    currency_columns=[
+                        "faturamento_ano_anterior", "media_7d_usada",
+                        "previsao_random_forest", "previsao_baseline",
+                        "diferenca_rf_menos_baseline",
+                    ],
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
 
 st.markdown(
     '<div class="footer">PROJETO DASH VENDAS · PORTFÓLIO DE DADOS + IA · DATASET PÚBLICO OLIST<br>'
