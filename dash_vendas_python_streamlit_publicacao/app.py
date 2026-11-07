@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-CUTOFF = pd.Timestamp("2018-08-22")
+CUTOFF = pd.Timestamp("2018-08-20")
 
 FILES = {
     "historico": "base_treinamento_faturamento_teste.csv",
@@ -24,7 +24,7 @@ FILES = {
     "comparacao_julho": "20_previsoes_random_forest_teste.csv",
     "validacao_temporal": "21_resultado_validacao_temporal.csv",
     "janela_recente": "22_resultado_janela_recente.csv",
-    "previsao_30_dias": "23_previsao_30_dias_corte_22_08.csv",
+    "previsao_30_dias": "24_previsao_30_dias_corte_20_08.csv",
 }
 
 # Paleta futurista em grafite, azul-marinho, lilás escuro e rosa neon.
@@ -296,7 +296,7 @@ PAGES = {
     "Histórico": ("02 / EXPLORAÇÃO", "Explore o histórico", "Investigue a evolução diária do valor dos itens em pedidos atualmente delivered."),
     "Desempenho dos modelos": ("03 / MODELOS", "Realizado versus previsto", "Comparação diária entre baseline e Random Forest no teste inicial de julho de 2018."),
     "Validação temporal": ("04 / ROBUSTEZ", "O desempenho se mantém no tempo?", "Cinco janelas de teste e diagnóstico separado do período recente."),
-    "Previsão 30 dias": ("05 / HORIZONTE", "Previsão simulada de 30 dias", "Cenário retrospectivo iniciado após o corte provisório de 22/08/2018."),
+    "Previsão 30 dias": ("05 / HORIZONTE", "Previsão simulada de 30 dias", "Cenário retrospectivo iniciado após o corte provisório de 20/08/2018."),
 }
 NAV_SYMBOLS = {
     "Visão geral": "◈  Visão geral",
@@ -338,7 +338,7 @@ with st.sidebar:
     st.divider()
     st.markdown(
         '<div style="font-size:.63rem;letter-spacing:.15em;font-weight:850;color:#9A8FA8;margin-bottom:7px">RECORTE ANALÍTICO</div>'
-        '<div style="font-size:.75rem;color:#D8CDDE;line-height:1.7">Jan/2017 – Ago/2018<br>Corte provisório: 22/08/2018</div>',
+        '<div style="font-size:.75rem;color:#D8CDDE;line-height:1.7">Jan/2017 – Ago/2018<br>Corte provisório: 20/08/2018</div>',
         unsafe_allow_html=True,
     )
     st.caption("Somente leitura de CSVs locais. Esta interface não consulta nem altera o BigQuery.")
@@ -349,7 +349,7 @@ st.markdown(
     f'<div class="hero-title">{hero_title}</div><div class="hero-subtitle">{hero_subtitle}</div>'
     '<div class="status-line"><span class="status-chip">DADOS PÚBLICOS • OLIST</span>'
     '<span class="status-chip">SQL + PYTHON + MACHINE LEARNING</span>'
-    '<span class="status-chip">CORTE PROVISÓRIO · 22 AGO 2018</span></div></div>',
+    '<span class="status-chip">CORTE PROVISÓRIO · 20 AGO 2018</span></div></div>',
     unsafe_allow_html=True,
 )
 
@@ -392,7 +392,7 @@ if page == "Visão geral":
 
     left, right = st.columns([1.7, 1], gap="large")
     with left:
-        section_header("SÉRIE HISTÓRICA", "Faturamento diário", "Valor dos itens em pedidos atualmente delivered; recorte até 22/08/2018.")
+        section_header("SÉRIE HISTÓRICA", "Faturamento diário", "Valor dos itens em pedidos atualmente delivered; recorte até 20/08/2018.")
         if not hist_cut.empty:
             fig = go.Figure()
             fig.add_trace(go.Scatter(
@@ -410,7 +410,7 @@ if page == "Visão geral":
         st.write("")
         insight_card("02 · Desempenho varia", f"O Random Forest venceu {wins} de {len(windows)} janelas. A vantagem agregada não se repete em todos os períodos.")
         st.write("")
-        insight_card("03 · Previsão simulada", "O horizonte de 23/08 a 21/09/2018 é retrospectivo e não possui faturamento realizado maduro para medir erro.")
+        insight_card("03 · Previsão simulada", "O horizonte de 21/08 a 19/09/2018 é retrospectivo e não possui faturamento realizado maduro para medir erro.")
 
     st.write("")
     section_header("COMPARAÇÃO DE WAPE", "Baseline x Random Forest", "Menor WAPE indica menor soma de erros absolutos em relação ao realizado.")
@@ -459,7 +459,7 @@ elif page == "Histórico":
                 use_container_width=True,
                 hide_index=True,
             )
-    st.info("O histórico exibido é limitado provisoriamente a 22/08/2018 para evitar interpretar a queda no fim da série como uma queda de vendas confirmada.")
+    st.info("O histórico exibido é limitado provisoriamente a 20/08/2018 para evitar interpretar a queda no fim da série como uma queda de vendas confirmada.")
 
 elif page == "Desempenho dos modelos":
     section_header("TESTE INICIAL", "Realizado versus previsto", "01 a 30/07/2018. Os métodos foram avaliados nas mesmas 30 datas.")
@@ -554,9 +554,9 @@ elif page == "Validação temporal":
         show_chart(style_figure(fig, 360), "recent_diagnostic")
 
 elif page == "Previsão 30 dias":
-    section_header("HORIZONTE DE PREVISÃO", "30 dias simulados", "23/08 a 21/09/2018. É uma simulação retrospectiva, não uma previsão para o mercado atual.")
+    section_header("HORIZONTE DE PREVISÃO", "30 dias simulados", "21/08 a 19/09/2018. É uma simulação retrospectiva, não uma previsão para o mercado atual.")
     if forecast is None or not {"data", "previsao_random_forest", "previsao_baseline"}.issubset(forecast.columns):
-        st.info("Coloque 23_previsao_30_dias_corte_22_08.csv na mesma pasta do app.py.")
+        st.info("Coloque 24_previsao_30_dias_corte_20_08.csv na mesma pasta do app.py.")
     else:
         forecast = forecast.sort_values("data").copy()
         rf_total = pd.to_numeric(forecast["previsao_random_forest"], errors="coerce").sum()
@@ -572,7 +572,7 @@ elif page == "Previsão 30 dias":
         add_currency_line(fig, forecast, "data", "previsao_random_forest", "Random Forest", CYAN, width=2.7)
         add_currency_line(fig, forecast, "data", "previsao_baseline", "Baseline", ORANGE, dash="dash", width=2.3)
         show_chart(style_figure(fig, 430), "forecast_horizon")
-        st.warning("Esta previsão usa o corte provisório de 22/08/2018. O arquivo não contém faturamento realizado maduro para o horizonte; por isso, não há métricas de erro nesta seção.")
+        st.warning("Esta previsão usa o corte provisório de 20/08/2018. O arquivo não contém faturamento realizado maduro para o horizonte; por isso, não há métricas de erro nesta seção.")
         with st.expander("Ver previsões diárias e features"):
             display = forecast.copy()
             display["data"] = display["data"].dt.strftime("%d/%m/%Y")
@@ -591,7 +591,7 @@ elif page == "Previsão 30 dias":
 
 st.markdown(
     '<div class="footer">PROJETO DASH VENDAS · PORTFÓLIO DE DADOS + IA · DATASET PÚBLICO OLIST<br>'
-    'Indicador operacional baseado em itens de pedidos atualmente delivered. Corte em 22/08/2018 provisório.<br>'
+    'Indicador operacional baseado em itens de pedidos atualmente delivered. Corte em 20/08/2018 provisório.<br>'
     'Dashboard local: os dados são lidos dos CSVs na pasta da aplicação.</div>',
     unsafe_allow_html=True,
 )
