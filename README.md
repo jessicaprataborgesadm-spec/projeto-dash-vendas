@@ -4,7 +4,7 @@ Projeto de portfólio em **Análise de Dados, Engenharia Analítica e Machine Le
 
 O objetivo é transformar dados transacionais em uma base analítica diária, investigar padrões de vendas e avaliar abordagens para previsão de faturamento, documentando decisões, limitações e resultados.
 
-> **Status:** pipeline analítico e experimentos preditivos desenvolvidos; scripts Python, dashboard Streamlit, dependências e seis CSVs agregados publicados no repositório, dentro de `dash_vendas_python_streamlit_publicacao/`. O dashboard ainda não está hospedado nem conectado diretamente ao BigQuery.
+> **Status:** pipeline analítico e experimentos preditivos desenvolvidos; scripts Python, dashboard Streamlit, dependências e sete CSVs agregados publicados no repositório, dentro de `dash_vendas_python_streamlit_publicacao/`. O dashboard ainda não está hospedado nem conectado diretamente ao BigQuery.
 
 ## Problema de negócio
 
@@ -126,20 +126,20 @@ Uma janela recente de 31/07/2018 a 29/08/2018 apresentou WAPE de 36,39% para o R
 
 ## Previsão simulada de 30 dias
 
-Após observar uma queda acentuada no valor associado a pedidos atualmente `delivered` no fim de agosto de 2018, foi adotado **22/08/2018 como corte provisório** para uma simulação retrospectiva.
+Após observar uma queda acentuada no valor associado a pedidos atualmente `delivered` no fim de agosto de 2018, foi adotado **20/08/2018 como corte provisório** para a simulação retrospectiva exibida no dashboard.
 
-- treinamento até: 22/08/2018;
-- horizonte: 23/08/2018 a 21/09/2018;
-- previsão total Random Forest: R$ 907.929,42;
-- previsão total baseline: R$ 840.885,00.
+- treinamento até: 20/08/2018;
+- horizonte: 21/08/2018 a 19/09/2018;
+- previsão total Random Forest: R$ 993.231,78;
+- previsão total baseline: R$ 1.024.124,10.
 
-Esses valores são previsões simuladas. Não há faturamento realizado maduro no arquivo de saída para calcular MAE, RMSE ou WAPE desse horizonte. O corte de 22/08/2018 é provisório e deve ser interpretado como uma decisão de controle de qualidade da série, não como uma regra definitiva já comprovada.
+Esses valores são previsões simuladas. Não há faturamento realizado maduro no arquivo de saída para calcular MAE, RMSE ou WAPE desse horizonte. O corte de 20/08/2018 é provisório e deve ser interpretado como uma decisão de controle de qualidade da série, não como uma regra definitiva já comprovada.
 
-A base CSV usada pelos experimentos mantém observações até 29/08/2018 porque também sustenta os backtests e a investigação da janela recente. No script de previsão 30 dias, somente as linhas até 22/08/2018 entram no treinamento. Para as datas previstas de 23 a 29/08, o script utiliza apenas features conhecidas (referência do ano anterior e calendário), sem usar o `faturamento_diario` real desses dias nem atualizar a média móvel com valores reais futuros.
+A base CSV usada pelos experimentos mantém observações até 29/08/2018 porque também sustenta os backtests e a investigação da janela recente. No script de previsão 30 dias ativo no dashboard, somente as linhas até 20/08/2018 entram no treinamento. Para as datas previstas de 21 a 29/08, o script utiliza apenas features conhecidas (referência do ano anterior e calendário), sem usar o `faturamento_diario` real desses dias nem atualizar a média móvel com valores reais futuros.
 
 ### Sensibilidade do corte temporal
 
-Foi comparada a média dos sete dias encerrados em cada data de corte com a média dos 28 dias anteriores. A variação do valor diário médio foi de +5,61% em 15/08, -0,74% em 18/08, -4,77% em 20/08, -23,26% em 22/08, -38,59% em 24/08, -50,89% em 26/08 e -77,32% em 29/08. O resultado indica uma deterioração acentuada entre 20/08 e 22/08. **20/08/2018 foi recomendado como candidato mais prudente para um experimento separado de corte.** Para preservar a rastreabilidade, foi criado o script `24_previsao_30_dias_corte_20_08.py`, que treina até 20/08 e prevê 21/08 a 19/09. Sua execução e validação ainda estão pendentes; os totais e o CSV desta seção continuam sendo da simulação histórica com corte em 22/08/2018, preservada pelo script 23. A comparação é um diagnóstico descritivo, não uma detecção estatística definitiva de mudança de regime.
+Foi comparada a média dos sete dias encerrados em cada data de corte com a média dos 28 dias anteriores. A variação do valor diário médio foi de +5,61% em 15/08, -0,74% em 18/08, -4,77% em 20/08, -23,26% em 22/08, -38,59% em 24/08, -50,89% em 26/08 e -77,32% em 29/08. O resultado indica uma deterioração acentuada entre 20/08 e 22/08. **20/08/2018 foi recomendado como candidato mais prudente para o experimento separado de corte.** O script `24_previsao_30_dias_corte_20_08.py` foi executado; o CSV gerado passou pela validação estrutural de 30 datas consecutivas, sem duplicidades, dias faltantes, previsões nulas ou valores negativos. O dashboard passou a utilizar esse novo arquivo. A simulação anterior com corte em 22/08 permanece preservada pelo script 23 e seu CSV. A comparação é um diagnóstico descritivo, não uma detecção estatística definitiva de mudança de regime.
 
 ## Análises documentadas
 
@@ -167,7 +167,7 @@ projeto-dash-vendas/
 │   ├── requirements.txt
 │   ├── README_PYTHON.md
 │   ├── 19_avaliacao_baseline.py ... 24_previsao_30_dias_corte_20_08.py
-│   └── seis arquivos CSV usados nos experimentos e no dashboard
+│   └── sete arquivos CSV de resultados, incluindo a simulação anterior e a nova previsão ativa
 ├── docs/
 │   ├── analise-variacao-precos.md
 │   └── analise_pico_black_friday_2017.md
@@ -179,14 +179,14 @@ projeto-dash-vendas/
 └── README.md
 ```
 
-O repositório contém as consultas SQL 01 a 18, os documentos listados acima e a camada Python/Streamlit com seus seis CSVs agregados. Os arquivos Python estão agrupados em `dash_vendas_python_streamlit_publicacao/` para preservar a estrutura efetivamente publicada.
+O repositório contém as consultas SQL 01 a 18, os documentos listados acima e a camada Python/Streamlit com seus sete CSVs agregados. Os arquivos Python estão agrupados em `dash_vendas_python_streamlit_publicacao/` para preservar a estrutura efetivamente publicada.
 
 ## Limitações conhecidas
 
 - O dataset é histórico e termina em 2018; a simulação não é uma previsão do mercado atual.
 - A métrica baseada no status atual `delivered` não equivale a faturamento contábil reconciliado.
 - A cobertura temporal é irregular em partes do dataset, especialmente no fim da série.
-- O corte em 22/08/2018 é provisório.
+- O corte em 20/08/2018 é provisório.
 - A validação temporal contém poucas janelas e o Random Forest não venceu todas.
 - A análise da Black Friday foi feita sobre a base diária agregada; não foi concluída a decomposição dos pedidos individuais diretamente nas tabelas RAW.
 - A IA Analista com Gemini/Vertex AI é uma possibilidade planejada e ainda não foi implementada.
