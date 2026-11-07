@@ -1,14 +1,20 @@
 # Camada Python e Dashboard | Projeto Dash Vendas
 
-Este pacote contém os scripts Python, o dashboard Streamlit e os CSVs agregados usados pela aplicação.
+Esta pasta contém os scripts Python, o dashboard Streamlit, as dependências e os CSVs agregados usados pela aplicação.
 
 ## Estrutura
 
-Mantenha os arquivos deste pacote na raiz do repositório, junto ao `README.md`, `sql/` e `docs/`.
+Mantenha os arquivos desta pasta juntos. O dashboard lê seis arquivos CSV locais e não consulta o BigQuery diretamente.
 
-O dashboard lê seis arquivos CSV locais. Ele não consulta o BigQuery diretamente.
+## Executar o dashboard (Windows)
 
-## Ambiente (Windows)
+Abra o terminal na raiz do repositório e entre nesta pasta:
+
+```bash
+cd dash_vendas_python_streamlit_publicacao
+```
+
+Crie e ative um ambiente virtual, instale as dependências e inicie o dashboard:
 
 ```bash
 py -m venv .venv
@@ -17,9 +23,11 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
+O Streamlit abrirá o endereço local informado no terminal.
+
 ## Reproduzir os experimentos
 
-A base `base_treinamento_faturamento_teste.csv` é a exportação agregada da SQL 18. Para atualizar os resultados, exporte novamente a saída da consulta com esse nome e execute, na raiz do projeto:
+Execute os comandos a partir desta pasta, onde estão os scripts e a base CSV:
 
 ```bash
 python 19_avaliacao_baseline.py
@@ -29,7 +37,9 @@ python 22_validacao_janela_recente.py
 python 23_previsao_30_dias_corte_22_08.py
 ```
 
-Os scripts geram os CSVs de resultados utilizados pelo dashboard. A execução dos scripts 20 a 23 reutiliza as regras do modelo e mantém a média móvel recursiva sem usar faturamento real futuro.
+A base `base_treinamento_faturamento_teste.csv` é a exportação agregada da SQL 18. Para atualizar os resultados, exporte novamente a saída da consulta e substitua esse arquivo, preservando o nome e as colunas esperadas.
+
+Os scripts geram os CSVs de resultados utilizados pelo dashboard. A previsão de vários dias atualiza a média móvel com previsões anteriores, sem usar faturamento real futuro.
 
 ## Definição e limites dos dados
 
