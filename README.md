@@ -135,6 +135,8 @@ Após observar uma queda acentuada no valor associado a pedidos atualmente `deli
 
 Esses valores são previsões simuladas. Não há faturamento realizado maduro no arquivo de saída para calcular MAE, RMSE ou WAPE desse horizonte. O corte de 22/08/2018 é provisório e deve ser interpretado como uma decisão de controle de qualidade da série, não como uma regra definitiva já comprovada.
 
+A base CSV usada pelos experimentos mantém observações até 29/08/2018 porque também sustenta os backtests e a investigação da janela recente. No script de previsão 30 dias, somente as linhas até 22/08/2018 entram no treinamento. Para as datas previstas de 23 a 29/08, o script utiliza apenas features conhecidas (referência do ano anterior e calendário), sem usar o `faturamento_diario` real desses dias nem atualizar a média móvel com valores reais futuros.
+
 ## Análises documentadas
 
 - [Análise de variação de preços](docs/analise-variacao-precos.md): investigação exploratória do histórico de preços de um produto.
