@@ -137,6 +137,10 @@ Esses valores são previsões simuladas. Não há faturamento realizado maduro n
 
 A base CSV usada pelos experimentos mantém observações até 29/08/2018 porque também sustenta os backtests e a investigação da janela recente. No script de previsão 30 dias, somente as linhas até 22/08/2018 entram no treinamento. Para as datas previstas de 23 a 29/08, o script utiliza apenas features conhecidas (referência do ano anterior e calendário), sem usar o `faturamento_diario` real desses dias nem atualizar a média móvel com valores reais futuros.
 
+### Sensibilidade do corte temporal
+
+Foi comparada a média dos sete dias encerrados em cada data de corte com a média dos 28 dias anteriores. A variação do valor diário médio foi de +5,61% em 15/08, -0,74% em 18/08, -4,77% em 20/08, -23,26% em 22/08, -38,59% em 24/08, -50,89% em 26/08 e -77,32% em 29/08. O resultado indica uma deterioração acentuada entre 20/08 e 22/08. **20/08/2018 passa a ser recomendado como candidato mais prudente para o próximo experimento de corte**, mas ainda não foi aplicado ao script publicado: os totais e o CSV desta seção continuam sendo da simulação com corte em 22/08/2018. A comparação é um diagnóstico descritivo, não uma detecção estatística definitiva de mudança de regime.
+
 ## Análises documentadas
 
 - [Análise de variação de preços](docs/analise-variacao-precos.md): investigação exploratória do histórico de preços de um produto.
