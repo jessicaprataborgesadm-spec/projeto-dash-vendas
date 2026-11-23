@@ -207,9 +207,19 @@ O motor lê os CSVs locais existentes e retorna fatos em contrato estruturado:
 
 Status previstos: `ok`, `partial_data`, `insufficient_data`, `out_of_scope`. Períodos sem cobertura são sinalizados; referências anuais nulas não são substituídas por zero; a previsão simulada não recebe métricas de erro sem realizado.
 
-**Testes:** `dash_vendas_python_streamlit_publicacao/tests/test_analytics.py`. Foram executados 14 testes automatizados com `unittest`, todos aprovados. Cobrem as sete intenções, resultados conhecidos, cobertura parcial, datas inválidas/duplicadas, serialização JSON e intenção fora do escopo.
+**Testes:** `tests/test_analytics.py` e `tests/test_router.py`. Foram executados 28 testes automatizados com `unittest`, todos aprovados. Cobrem sete intenções, resultados conhecidos, cobertura parcial, datas inválidas/duplicadas, serialização JSON, extração de datas, perguntas ambíguas e fora do escopo. Os testes foram executados com DeprecationWarnings tratados como erros e passaram sem avisos após correção de unidade explícita em `pd.Timedelta`.
 
-**Limite atual:** o motor ainda não está integrado ao `app.py`; não há classificador de linguagem natural nem chamada a LLM. `executar_intencao` é um dispatcher por identificador explícito, não um roteador de mensagens livres.
+**Roteador determinístico implementado:** `dash_vendas_python_streamlit_publicacao/ia_analista/router.py`.
+
+Funções:
+- `route_question`: classifica texto em português por regras explícitas, identifica período e valida parâmetros;
+- `executar_pergunta`: encaminha uma pergunta classificada ao motor analítico e devolve o resultado estruturado.
+
+Regras já cobertas: datas em DD/MM/AAAA e AAAA-MM-DD; mês/ano por extenso; semestre e ano; pedido de esclarecimento quando falta período obrigatório; detecção de pergunta ambígua com mais de uma intenção; rejeição de perguntas por estado/cidade, produto/categoria, cliente ou pagamento; status de roteamento `ready`, `ambiguous`, `invalid` e `out_of_scope`.
+
+Testes do roteador: `tests/test_router.py`, 14 testes. A suíte combinada passou com **28 testes**. A execução local foi feita com `python -W error::DeprecationWarning -m unittest discover -s tests -v`, sem warnings de depreciação após corrigir o uso de `pd.Timedelta` com unidade explícita.
+
+**Limite atual:** o roteador é baseado em regras e padrões explícitos, não em compreensão semântica de LLM. Ele ainda não está integrado ao `app.py`; não há chamada a LLM. Perguntas fora dos padrões suportados podem precisar de reformulação.
 
 ### Fluxo arquitetural desejado
 
@@ -235,14 +245,14 @@ Regras:
 
 1. [x] Fechar o catálogo de intenções e exemplos de perguntas.
 2. [x] Implementar funções analíticas determinísticas em Python e resultados estruturados.
-3. [ ] Implementar roteamento de linguagem natural para as intenções e validação explícita de parâmetros.
+3. [x] Implementar roteador por regras explícitas e validação de parâmetros, sem LLM.
 4. [ ] Escolher o provedor/modelo (Gemini/Vertex AI são possibilidades, não decisão tomada) e configurar credenciais fora do Git.
 5. [ ] Conectar o LLM somente à interpretação dos fatos estruturados.
 6. [ ] Integrar a experiência conversacional ao Streamlit.
 7. [ ] Testar perguntas válidas, ambíguas, sem dados, com cobertura parcial e fora de escopo; conferir números contra Python/SQL.
 8. [ ] Documentar arquitetura, segurança, custos/limites e configuração.
 
-**Próxima tarefa técnica:** criar o roteador de intenções e o validador dos parâmetros de entrada. Não integrar o LLM ainda.
+**Próxima tarefa técnica:** testar exemplos adicionais e integrar o roteador/motor ao fluxo do Streamlit sem alterar a identidade visual. Depois, escolher o provedor LLM e conectar somente os fatos estruturados. Não executar SQL livre gerada pelo modelo.
 
 **Critério de conclusão:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
 
