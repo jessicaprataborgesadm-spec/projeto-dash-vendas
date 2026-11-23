@@ -219,7 +219,7 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [x] Criar roteador determinístico por regras explícitas e validação de parâmetros (`ia_analista/router.py`).
 - [x] Escolher Gemini Developer API e modelo `gemini-3.8-flash` para a primeira integração.
 - [x] Implementar a chamada opcional ao Gemini somente com a pergunta atual e o envelope determinístico, sem CSVs, histórico completo, ferramentas ou SQL.
-- [ ] Configurar a chave local e validar uma chamada real ao Gemini e o fallback sem chave/erro.
+- [ ] Configurar a chave local no nível gratuito, sem billing, e validar uma chamada real ao Gemini e o fallback sem chave/erro.
 - [x] Integrar a interface conversacional ao Streamlit (página `IA Analista`).
 - [x] Validar localmente as sete intenções do MVP e uma pergunta geográfica fora do escopo.
 - [ ] Validar manualmente casos de borda: pergunta ambígua/inválida, CSV ausente, cobertura parcial e limpeza da conversa.
@@ -271,10 +271,10 @@ GEMINI_MODEL = "gemini-3.8-flash"
 
 O arquivo `.streamlit/secrets.toml` já está coberto pelo `.gitignore`. **Nunca envie a chave pelo chat nem a publique no GitHub.**
 
-A camada gratuita da Gemini API pode usar o conteúdo para melhorar os produtos do Google. A camada paga informa que o conteúdo não é usado para esse fim. Como o projeto usa dados públicos agregados, a camada gratuita pode servir para um protótipo, mas a camada paga é preferível caso a prioridade seja evitar esse uso. A ativação da camada paga exige configurar faturamento e pode envolver pré-pagamento; não ative sem conferir as condições vigentes.
+O projeto adotará exclusivamente o nível gratuito da Gemini Developer API. A tabela oficial lista entrada e saída de tokens sem custo para `gemini-3.8-flash` nesse nível, sujeito a limites de uso e disponibilidade da conta. **Não configure faturamento, não vincule cartão e não faça upgrade.** O Google informa que pode usar o conteúdo do nível gratuito para melhorar seus produtos. Por isso, a integração está limitada à pergunta atual e a fatos agregados derivados da base pública Olist. Não envie dados pessoais, confidenciais, chaves ou credenciais. Se o Google exigir configuração de billing ou indicar qualquer cobrança, interrompa e mantenha o modo determinístico.
 
 Preços publicados para `gemini-3.8-flash` no nível Standard: US$ 0,75 por milhão de tokens de entrada e US$ 3,75 por milhão de tokens de saída até 31/12/2026; a página oficial informa US$ 1,50 e US$ 7,50 a partir de 01/01/2027. Preços podem mudar; consulte a [tabela oficial de preços](https://ai.google.dev/gemini-api/docs/pricing).
 
 Links oficiais: [Google AI Studio / chaves de API](https://aistudio.google.com/api-keys) · [SDK Google Gen AI para Python](https://googleapis.github.io/python-genai/) · [preços da Gemini API](https://ai.google.dev/gemini-api/docs/pricing).
 
-A integração está implementada, mas a chamada real ainda depende de chave local. Se a chave estiver ausente ou o serviço falhar, o dashboard mantém os cartões e resultados determinísticos sem interromper a resposta.
+A integração está implementada, mas a chamada real ainda depende de chave local no nível gratuito. Não habilitar billing nem associar cartão. Se a chave estiver ausente, a conta exigir faturamento ou o serviço falhar, o dashboard mantém os cartões e resultados determinísticos sem interromper a resposta.
