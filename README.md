@@ -208,7 +208,7 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 
 ### Próxima etapa principal: IA Analista
 
-- [ ] Definir catálogo de intenções e perguntas de negócio do MVP.
+- [x] Definir catálogo de sete intenções, perguntas de exemplo, fontes, parâmetros e limites de resposta ([documento](docs/catalogo_intencoes_ia_analista.md)).
 - [ ] Criar camada determinística de análise em Python/SQL, com métricas calculadas fora do LLM.
 - [ ] Padronizar resultados estruturados (valores, período, filtros, definição da métrica e limitações).
 - [ ] Criar roteamento de intenção e validação de parâmetros.
@@ -229,7 +229,7 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 
 ## Memória de continuidade
 
-As decisões de arquitetura, métrica, features, modelagem, validação, previsão ativa e limites da versão estão registradas em [PROJECT_MEMORY.md](PROJECT_MEMORY.md). Consulte esse arquivo antes de retomar ou alterar o projeto.
+As decisões do projeto estão em [PROJECT_MEMORY.md](PROJECT_MEMORY.md). O catálogo de intenções da IA Analista está em [docs/catalogo_intencoes_ia_analista.md](docs/catalogo_intencoes_ia_analista.md). Consulte ambos antes de retomar ou alterar a implementação.
 
 ## Princípios analíticos
 
