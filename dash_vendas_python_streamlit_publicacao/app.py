@@ -1,5 +1,6 @@
 from pathlib import Path
 import math
+import os
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -285,6 +286,19 @@ def carregar_fontes_ia():
     return carregar_fontes(BASE_DIR)
 
 
+def carregar_config_gemini():
+    """Lê a chave local do Streamlit Secrets ou da variável de ambiente."""
+    chave = os.getenv("GEMINI_API_KEY")
+    modelo = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+    try:
+        chave = st.secrets.get("GEMINI_API_KEY") or chave
+        modelo = st.secrets.get("GEMINI_MODEL") or modelo
+    except Exception:
+        # Sem secrets.toml, a aplicação continua no modo determinístico.
+        pass
+    return chave, modelo
+
+
 def data_br(valor):
     if not valor:
         return "N/D"
@@ -311,6 +325,23 @@ def renderizar_resposta_ia(resposta):
 
     if inicio != "N/D" or fim != "N/D":
         st.caption(f"Período analisado: {inicio} a {fim}")
+
+    interpretacao = resposta.get("interpretation") or {}
+    if interpretacao.get("status") == "ok":
+        st.markdown("**Leitura do analista**")
+        st.write(interpretacao["resumo"])
+        for ponto in interpretacao.get("pontos_chave", []):
+            st.markdown(f"- {ponto}")
+        cuidados_llm = interpretacao.get("cuidados") or []
+        if cuidados_llm:
+            with st.expander("Cuidados destacados pelo Gemini"):
+                for cuidado in cuidados_llm:
+                    st.markdown(f"- {cuidado}")
+    elif interpretacao.get("status") == "error":
+        st.caption(
+            "A interpretação generativa não ficou disponível nesta resposta. "
+            "Os indicadores abaixo continuam sendo os resultados determinísticos do Python."
+        )
 
     cobertura = resultado.get("coverage") or {}
     if status == "partial_data":
@@ -824,12 +855,20 @@ elif page == "IA Analista":
     section_header(
         "PERGUNTE AOS DADOS",
         "IA Analista",
-        "Respostas calculadas pelo motor analítico do projeto. Nesta primeira versão, não há LLM conectado.",
+        "Os cálculos continuam no Python; o Gemini interpreta somente os resultados estruturados.",
     )
+    api_key_gemini, modelo_gemini = carregar_config_gemini()
+    if api_key_gemini:
+        st.caption(f"Interpretação generativa ativa: {modelo_gemini}.")
+    else:
+        st.caption(
+            "LLM não configurado. A análise determinística continua disponível; "
+            "configure GEMINI_API_KEY em .streamlit/secrets.toml para ativar a interpretação."
+        )
     st.info(
-        "A análise usa os CSVs locais do projeto e regras explícitas de interpretação. "
-        "Os valores são calculados em Python; perguntas fora do escopo ou sem período suficiente "
-        "recebem pedidos de esclarecimento."
+        "O motor Python calcula todos os indicadores. Quando configurado, o Gemini recebe "
+        "somente a pergunta atual e os fatos estruturados necessários para explicá-la. "
+        "A base CSV e o histórico completo da conversa não são enviados ao modelo."
     )
     st.caption(
         "Experimente: “Qual foi o faturamento em julho de 2018?” · "
@@ -875,6 +914,21 @@ elif page == "IA Analista":
                 from ia_analista.router import executar_pergunta
 
                 resposta = executar_pergunta(pergunta, fontes_ia)
+                resultado_deterministico = resposta.get("result") or {}
+                if (
+                    api_key_gemini
+                    and resultado_deterministico.get("status") in {"ok", "partial_data"}
+                ):
+                    from ia_analista.llm import interpretar_resultado
+
+                    with st.spinner("O Gemini está interpretando os fatos calculados..."):
+                        resposta["interpretation"] = interpretar_resultado(
+                            pergunta=pergunta,
+                            resultado=resultado_deterministico,
+                            api_key=api_key_gemini,
+                            model=modelo_gemini,
+                            limitacoes_roteamento=resposta.get("routing_limitations"),
+                        )
             except Exception as exc:
                 resposta = {
                     "status": "invalid",
