@@ -4,7 +4,7 @@ Projeto de portfólio em **Análise de Dados, Engenharia Analítica e Machine Le
 
 O objetivo é transformar dados transacionais em uma base analítica diária, investigar padrões de vendas e avaliar abordagens para previsão de faturamento, documentando decisões, limitações e resultados.
 
-> **Status:** fundação analítica/preditiva e dashboard local concluídos. **A IA Analista conversacional é a próxima etapa obrigatória e o principal componente ainda não implementado**. O dashboard não está hospedado nem conectado diretamente ao BigQuery.
+> **Status:** fundação analítica/preditiva e dashboard local concluídos. A interface determinística inicial da IA Analista foi integrada ao Streamlit. A validação local dessa interface e a integração de um LLM continuam pendentes. O dashboard não está hospedado nem conectado diretamente ao BigQuery.
 
 ## Problema de negócio
 
@@ -64,7 +64,13 @@ Arquivos de resultados (CSV)
 Dashboard Streamlit local
           |
           v
-IA Analista (próxima etapa principal; ainda não implementada)
+IA Analista
+  |-- roteador determinístico
+  |-- motor analítico Python
+  |-- interface conversacional local
+  |
+  v
+LLM (integração futura; ainda não conectado)
 ```
 
 O fluxo Python e o dashboard utilizam arquivos CSV exportados. Os scripts, a aplicação e os seis CSVs necessários ao dashboard estão versionados em `dash_vendas_python_streamlit_publicacao/`. A aplicação não está hospedada e não consulta o BigQuery em tempo real.
@@ -148,13 +154,7 @@ Foi comparada a média dos sete dias encerrados em cada data de corte com a méd
 
 ## Dashboard
 
-Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação lateral e cinco áreas:
-
-1. Visão geral;
-2. Histórico;
-3. Modelos;
-4. Validação temporal;
-5. Previsão de 30 dias.
+Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação lateral e seis áreas: Visão geral, Histórico, Modelos, Validação temporal, Previsão de 30 dias e IA Analista. A página IA Analista contém a primeira interface de chat determinística, ainda sem LLM.
 
 As telas foram revisadas visualmente e os principais indicadores foram comparados com os resultados dos experimentos. O código e os CSVs usados pelo dashboard estão publicados em `dash_vendas_python_streamlit_publicacao/`. As instruções de instalação e execução estão em [README_PYTHON.md](dash_vendas_python_streamlit_publicacao/README_PYTHON.md). A instalação das dependências e a execução do dashboard foram validadas a partir de um clone limpo do repositório, usando Python 3.14.2.
 
@@ -190,7 +190,8 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - O corte em 20/08/2018 é provisório.
 - A validação temporal contém poucas janelas e o Random Forest não venceu todas.
 - A análise da Black Friday foi feita sobre a base diária agregada; não foi concluída a decomposição dos pedidos individuais diretamente nas tabelas RAW.
-- A IA Analista é parte central do objetivo do projeto e ainda não foi implementada. Gemini/Vertex AI são possibilidades de provedor, mas a escolha ainda está pendente.
+- A interface inicial da IA Analista usa roteamento por regras e cálculos determinísticos. Ainda não há interpretação generativa por LLM; Gemini/Vertex AI são possibilidades de provedor, mas a escolha está pendente.
+- A interface conversacional foi publicada, mas ainda precisa ser validada visualmente e funcionalmente no ambiente local.
 
 ## Roadmap do Projeto Dash Vendas
 
@@ -212,10 +213,13 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [x] Criar camada determinística em Python para as sete intenções, calculando métricas fora do LLM (`ia_analista/analytics.py`).
 - [x] Padronizar resultados estruturados com status, intenção, métrica, período, fatos, cobertura e limitações.
 - [x] Criar 28 testes automatizados para o motor e o roteador (`tests/test_analytics.py` e `tests/test_router.py`).
+- [ ] Executar o novo teste de compilação de `app.py` (`tests/test_app_syntax.py`) junto à suíte completa de 29 testes.
 - [x] Criar roteador determinístico por regras explícitas e validação de parâmetros (`ia_analista/router.py`).
 - [ ] Escolher e integrar o provedor de LLM; Gemini/Vertex AI são candidatos, não decisão tomada.
 - [ ] Conectar o LLM somente aos fatos estruturados, sem enviar automaticamente toda a base.
-- [ ] Integrar a interface conversacional ao Streamlit.
+- [x] Integrar uma primeira interface conversacional determinística ao Streamlit (página `IA Analista`).
+- [ ] Validar localmente o chat, o histórico de sessão, esclarecimentos, cobertura parcial e limpeza da conversa.
+- [ ] Escolher e integrar o provedor de LLM para interpretação dos fatos estruturados.
 - [ ] Testar respostas, perguntas ambíguas, ausência de dados, cobertura temporal e perguntas fora do escopo.
 - [x] Documentar catálogo, motor determinístico, roteador e execução dos testes.
 - [ ] Documentar a integração do LLM, fontes, limitações, segurança e configuração.
