@@ -225,7 +225,7 @@ Testes do roteador: `tests/test_router.py`, 14 testes. A suíte combinada passou
 
 **Credenciais:** `GEMINI_API_KEY` e, opcionalmente, `GEMINI_MODEL` devem ficar em `.streamlit/secrets.toml` local ou variáveis de ambiente. O `.gitignore` já exclui `.streamlit/secrets.toml` e `.env`. Nunca publicar nem compartilhar a chave.
 
-**Provedor escolhido:** Gemini Developer API (Google AI Studio), em vez de Vertex AI nesta primeira versão, pela configuração mais simples para um portfólio local. SDK: `google-genai`. Modelo: `gemini-3.8-flash`. A documentação do Google informa que a camada gratuita pode usar conteúdo para melhorar produtos; a camada paga informa que não usa o conteúdo para essa finalidade. Para uso pago, verificar faturamento e preços vigentes antes de ativar.
+**Provedor escolhido:** Gemini Developer API (Google AI Studio), em vez de Vertex AI nesta primeira versão, pela configuração mais simples para um portfólio local. SDK: `google-genai`. Modelo: `gemini-3.8-flash`. A decisão do projeto é usar exclusivamente o nível gratuito, sem configurar ou vincular faturamento e sem qualquer compromisso de upgrade. A tabela oficial lista entrada e saída de tokens sem custo para `gemini-3.8-flash` no nível gratuito, sujeito aos limites de uso e à disponibilidade da conta. O Google informa que o conteúdo desse nível pode ser usado para melhorar seus produtos. Como o projeto usa a base pública Olist, enviar somente a pergunta atual e fatos agregados autorizados; não incluir dados pessoais, confidenciais ou segredos. Se a interface exigir faturamento, cartão, upgrade ou indicar cobrança, interromper a configuração e manter o modo determinístico.
 
 **Observação de UX pendente:** no teste de diagnóstico formulado como queda (01/08 a 20/08/2018), o acumulado comparado foi positivo em 16,03%, embora houvesse quedas em dias isolados. A tela exibe os números e as maiores quedas, mas a interpretação textual deve explicitar que não houve queda no acumulado e separar o resultado agregado dos dias individuais.
 
@@ -263,7 +263,7 @@ Regras:
 8. [x] Implementar a integração opcional com Gemini e documentar arquitetura, segurança, custos/limites e configuração.
 9. [ ] Executar os seis novos testes simulados do LLM e validar localmente uma chamada real com chave própria; revisar o fallback sem chave.
 
-**Próxima tarefa técnica:** atualizar dependências e executar a suíte completa de 35 testes; configurar a chave local da Gemini e validar uma pergunta real com interpretação generativa. Depois, testar fallback sem chave/erro, limites de escopo e perguntas ambíguas. Melhorar a comunicação do diagnóstico para distinguir o acumulado das quedas diárias. Não executar SQL livre gerada pelo modelo.
+**Próxima tarefa técnica:** atualizar dependências e executar a suíte completa de 35 testes; configurar a chave no nível gratuito do Google AI Studio e validar uma pergunta real sem habilitar faturamento. Não adicionar cartão nem vincular conta de cobrança. Se a conta não oferecer acesso gratuito ao modelo, manter o modo determinístico e avaliar alternativas locais sem custo. Depois, testar fallback sem chave/erro, limites de escopo e perguntas ambíguas. Melhorar a comunicação do diagnóstico para distinguir o acumulado das quedas diárias. Não executar SQL livre gerada pelo modelo.
 
 **Critério de conclusão:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
 
