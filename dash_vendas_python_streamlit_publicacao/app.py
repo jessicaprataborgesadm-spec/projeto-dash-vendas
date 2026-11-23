@@ -277,6 +277,234 @@ def insight_card(title: str, body: str):
     )
 
 
+@st.cache_data(show_spinner=False)
+def carregar_fontes_ia():
+    """Carrega as fontes da IA somente quando a página conversacional é aberta."""
+    from ia_analista.analytics import carregar_fontes
+
+    return carregar_fontes(BASE_DIR)
+
+
+def data_br(valor):
+    if not valor:
+        return "N/D"
+    data = pd.to_datetime(valor, errors="coerce")
+    return data.strftime("%d/%m/%Y") if pd.notna(data) else "N/D"
+
+
+def renderizar_resposta_ia(resposta):
+    """Apresenta fatos já calculados pelo motor, sem gerar ou inferir métricas."""
+    if "result" not in resposta:
+        mensagem = resposta.get("clarification") or "Não foi possível processar a pergunta."
+        st.info(mensagem)
+        if resposta.get("technical_error"):
+            with st.expander("Detalhes técnicos"):
+                st.code(resposta["technical_error"])
+        return
+
+    resultado = resposta["result"]
+    status = resultado.get("status")
+    fatos = resultado.get("facts") or {}
+    periodo = resultado.get("period") or {}
+    inicio = data_br(periodo.get("start_date"))
+    fim = data_br(periodo.get("end_date"))
+
+    if inicio != "N/D" or fim != "N/D":
+        st.caption(f"Período analisado: {inicio} a {fim}")
+
+    cobertura = resultado.get("coverage") or {}
+    if status == "partial_data":
+        faltantes = cobertura.get("dias_faltantes")
+        if faltantes is None:
+            faltantes = cobertura.get("dias_faltantes_periodo_atual")
+        st.warning(
+            f"Resultado parcial. Há dias sem cobertura no período"
+            + (f" ({faltantes} dia(s))." if faltantes is not None else ".")
+        )
+    elif status == "insufficient_data":
+        st.warning("A base não possui dados suficientes para responder a essa pergunta.")
+    elif status == "out_of_scope":
+        st.info("Essa pergunta está fora do escopo atual da base.")
+
+    intent = resposta.get("intent")
+
+    if intent == "period_evolution":
+        a, b, c = st.columns(3)
+        a.metric("Faturamento total", brl(fatos.get("total")))
+        b.metric("Média diária", brl(fatos.get("media_diaria")))
+        c.metric("Mediana diária", brl(fatos.get("mediana_diaria")))
+        d, e, f = st.columns(3)
+        d.metric("Maior valor diário", brl(fatos.get("maximo")))
+        e.metric("Menor valor diário", brl(fatos.get("minimo")))
+        f.metric("Dias com valor", integer(fatos.get("dias_com_valor")))
+        if fatos.get("data_maximo"):
+            st.caption(f"Maior valor em {data_br(fatos['data_maximo'])}.")
+        if fatos.get("data_minimo"):
+            st.caption(f"Menor valor em {data_br(fatos['data_minimo'])}.")
+
+    elif intent == "period_comparison":
+        a, b, c = st.columns(3)
+        a.metric("Período analisado", brl(fatos.get("total_periodo_atual_pares_comparaveis")))
+        b.metric("Período de comparação", brl(fatos.get("total_periodo_comparacao")))
+        variacao = fatos.get("variacao_percentual")
+        c.metric("Variação", pct(variacao), delta=pct(variacao) if variacao is not None else None)
+        st.caption(
+            f"Diferença absoluta: {brl(fatos.get('diferenca_absoluta'))}. "
+            f"Dias comparáveis: {integer(fatos.get('dias_comparaveis'))}."
+        )
+        st.caption(
+            f"Comparação de {data_br(fatos.get('data_inicio_comparacao'))} "
+            f"a {data_br(fatos.get('data_fim_comparacao'))}."
+        )
+
+    elif intent == "weekday_pattern":
+        ranking = fatos.get("ranking_por_media_diaria") or []
+        if ranking:
+            tabela = pd.DataFrame(ranking).rename(columns={
+                "dia_semana": "Dia da semana",
+                "dias_observados": "Dias observados",
+                "total": "Total",
+                "media_diaria": "Média diária",
+                "mediana_diaria": "Mediana diária",
+            })
+            st.dataframe(
+                format_table(
+                    tabela,
+                    currency_columns=["Total", "Média diária", "Mediana diária"],
+                    integer_columns=["Dias observados"],
+                ),
+                use_container_width=True,
+                hide_index=True,
+            )
+            maior = fatos.get("maior_media") or {}
+            menor = fatos.get("menor_media") or {}
+            st.caption(
+                f"Maior média: {maior.get('dia_semana', 'N/D')}. "
+                f"Menor média: {menor.get('dia_semana', 'N/D')}."
+            )
+        else:
+            st.info("Não há observações suficientes para comparar os dias da semana.")
+
+    elif intent == "calendar_analysis":
+        st.caption(f"Categoria analisada: {fatos.get('categoria', 'N/D')}.")
+        grupos = fatos.get("comparacao") or {}
+        esquerda, direita = st.columns(2)
+        for coluna, chave, titulo in [
+            (esquerda, "sinalizado", "Dias sinalizados"),
+            (direita, "nao_sinalizado", "Dias não sinalizados"),
+        ]:
+            grupo = grupos.get(chave) or {}
+            with coluna:
+                st.markdown(f"**{titulo}**")
+                st.metric("Dias observados", integer(grupo.get("dias_observados")))
+                st.metric("Média diária", brl(grupo.get("media_diaria")))
+                st.metric("Total", brl(grupo.get("total")))
+
+    elif intent == "change_diagnosis":
+        a, b, c = st.columns(3)
+        a.metric("Faturamento no período", brl(fatos.get("total_periodo_atual_pareado")))
+        b.metric("Faturamento na comparação", brl(fatos.get("total_periodo_comparacao_pareado")))
+        variacao = fatos.get("variacao_percentual")
+        c.metric("Variação", pct(variacao), delta=pct(variacao) if variacao is not None else None)
+        st.caption(
+            f"Diferença entre os períodos: {brl(fatos.get('variacao_total'))}. "
+            f"Dias pareados: {integer(cobertura.get('dias_pareados'))}."
+        )
+        for chave, titulo in [
+            ("maiores_altas_diarias", "Maiores altas diárias"),
+            ("maiores_quedas_diarias", "Maiores quedas diárias"),
+        ]:
+            linhas = fatos.get(chave) or []
+            if linhas:
+                st.markdown(f"**{titulo}**")
+                tabela = pd.DataFrame(linhas).rename(columns={
+                    "data": "Data",
+                    "faturamento_atual": "Faturamento atual",
+                    "faturamento_comparacao": "Faturamento comparação",
+                    "diferenca": "Diferença",
+                })
+                tabela["Data"] = tabela["Data"].map(data_br)
+                st.dataframe(
+                    format_table(
+                        tabela,
+                        currency_columns=["Faturamento atual", "Faturamento comparação", "Diferença"],
+                    ),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+    elif intent == "forecast_summary":
+        a, b, c = st.columns(3)
+        a.metric("Total Random Forest", brl(fatos.get("total_random_forest")))
+        b.metric("Total baseline", brl(fatos.get("total_baseline")))
+        c.metric("Diferença RF − baseline", brl(fatos.get("diferenca_rf_menos_baseline")))
+        st.caption(
+            f"Horizonte de {integer(fatos.get('quantidade_dias'))} dias, "
+            f"de {inicio} a {fim}. Corte de treinamento: {data_br(fatos.get('corte_treinamento'))}."
+        )
+
+    elif intent == "model_performance":
+        blocos = [
+            ("Teste inicial de julho", fatos.get("teste_inicial_julho") or {}),
+            ("Validação temporal", fatos.get("validacao_temporal_5_janelas") or {}),
+            ("Diagnóstico recente", fatos.get("diagnostico_janela_recente") or {}),
+        ]
+        for titulo, bloco in blocos:
+            st.markdown(f"**{titulo}**")
+            if "random_forest" in bloco and "baseline" in bloco:
+                linhas = []
+                for nome, chave in [("Random Forest", "random_forest"), ("Baseline", "baseline")]:
+                    metricas = bloco.get(chave) or {}
+                    linhas.append({
+                        "Modelo": nome,
+                        "MAE": metricas.get("mae"),
+                        "RMSE": metricas.get("rmse"),
+                        "WAPE (%)": metricas.get("wape_pct"),
+                        "Observações": metricas.get("n"),
+                    })
+                tabela = pd.DataFrame(linhas)
+                st.dataframe(
+                    format_table(
+                        tabela,
+                        currency_columns=["MAE", "RMSE"],
+                        percentage_columns=["WAPE (%)"],
+                        integer_columns=["Observações"],
+                    ),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+            elif "quantidade_janelas" in bloco:
+                a, b, c = st.columns(3)
+                a.metric("Janelas avaliadas", integer(bloco.get("quantidade_janelas")))
+                b.metric("Janelas vencidas pelo RF", integer(bloco.get("janelas_vencidas_random_forest")))
+                c.metric("WAPE RF agregado", pct(bloco.get("wape_agregado_random_forest_pct")))
+                janelas = bloco.get("por_janela") or []
+                if janelas:
+                    tabela = pd.DataFrame(janelas).rename(columns={
+                        "inicio": "Início",
+                        "fim": "Fim",
+                        "wape_random_forest_pct": "WAPE RF (%)",
+                        "wape_baseline_pct": "WAPE baseline (%)",
+                        "vencedor": "Menor WAPE",
+                    })
+                    tabela["Início"] = tabela["Início"].map(data_br)
+                    tabela["Fim"] = tabela["Fim"].map(data_br)
+                    st.dataframe(
+                        format_table(tabela, percentage_columns=["WAPE RF (%)", "WAPE baseline (%)"]),
+                        use_container_width=True,
+                        hide_index=True,
+                    )
+
+    limitacoes = resultado.get("limitations") or []
+    limitacoes += resposta.get("routing_limitations") or []
+    if limitacoes:
+        with st.expander("Limitações e cuidados da análise"):
+            for item in limitacoes:
+                st.markdown(f"- {item}")
+
+
+
+
 # Leitura exclusivamente local dos CSVs existentes.
 data = {key: load_csv(filename) for key, filename in FILES.items()}
 for key in ["historico", "baseline_julho", "comparacao_julho", "janela_recente", "previsao_30_dias"]:
@@ -297,6 +525,7 @@ PAGES = {
     "Desempenho dos modelos": ("03 / MODELOS", "Realizado versus previsto", "Comparação diária entre baseline e Random Forest no teste inicial de julho de 2018."),
     "Validação temporal": ("04 / ROBUSTEZ", "O desempenho se mantém no tempo?", "Cinco janelas de teste e diagnóstico separado do período recente."),
     "Previsão 30 dias": ("05 / HORIZONTE", "Previsão simulada de 30 dias", "Cenário retrospectivo iniciado após o corte provisório de 20/08/2018."),
+    "IA Analista": ("06 / IA ANALISTA", "Converse com os dados", "Faça perguntas sobre faturamento, períodos, calendário, previsão e desempenho dos modelos."),
 }
 NAV_SYMBOLS = {
     "Visão geral": "◈  Visão geral",
@@ -304,6 +533,7 @@ NAV_SYMBOLS = {
     "Desempenho dos modelos": "▥  Modelos",
     "Validação temporal": "◷  Validação temporal",
     "Previsão 30 dias": "↗  Previsão 30 dias",
+    "IA Analista": "✦  IA Analista",
 }
 with st.sidebar:
     st.markdown(
@@ -588,6 +818,73 @@ elif page == "Previsão 30 dias":
                 use_container_width=True,
                 hide_index=True,
             )
+
+
+elif page == "IA Analista":
+    section_header(
+        "PERGUNTE AOS DADOS",
+        "IA Analista",
+        "Respostas calculadas pelo motor analítico do projeto. Nesta primeira versão, não há LLM conectado.",
+    )
+    st.info(
+        "A análise usa os CSVs locais do projeto e regras explícitas de interpretação. "
+        "Os valores são calculados em Python; perguntas fora do escopo ou sem período suficiente "
+        "recebem pedidos de esclarecimento."
+    )
+    st.caption(
+        "Experimente: “Qual foi o faturamento em julho de 2018?” · "
+        "“Compare julho de 2018 com julho de 2017” · "
+        "“Qual dia da semana costuma ter maior faturamento?” · "
+        "“Qual é a previsão dos próximos 30 dias?”"
+    )
+
+    try:
+        with st.spinner("Carregando as fontes analíticas..."):
+            fontes_ia = carregar_fontes_ia()
+    except (FileNotFoundError, ValueError, OSError) as exc:
+        fontes_ia = None
+        st.error("Não foi possível iniciar a IA Analista. Confira se os CSVs analíticos estão na pasta da aplicação.")
+        with st.expander("Detalhes técnicos"):
+            st.code(str(exc))
+
+    if fontes_ia is not None:
+        mensagens = st.session_state.setdefault("ia_analista_mensagens", [])
+
+        topo, limpar = st.columns([5, 1])
+        with topo:
+            st.caption("A conversa fica guardada somente durante a sessão atual do Streamlit.")
+        with limpar:
+            if st.button("Limpar", key="limpar_conversa_ia", use_container_width=True):
+                st.session_state["ia_analista_mensagens"] = []
+                st.rerun()
+
+        for mensagem in mensagens:
+            with st.chat_message(mensagem["role"]):
+                if mensagem["role"] == "user":
+                    st.markdown(mensagem["content"])
+                else:
+                    renderizar_resposta_ia(mensagem["response"])
+
+        pergunta = st.chat_input(
+            "Pergunte sobre o faturamento, os períodos ou os modelos...",
+            key="pergunta_ia_analista",
+        )
+        if pergunta:
+            mensagens.append({"role": "user", "content": pergunta})
+            try:
+                from ia_analista.router import executar_pergunta
+
+                resposta = executar_pergunta(pergunta, fontes_ia)
+            except Exception as exc:
+                resposta = {
+                    "status": "invalid",
+                    "clarification": "Ocorreu um erro ao processar a pergunta.",
+                    "technical_error": str(exc),
+                }
+            mensagens.append({"role": "assistant", "response": resposta})
+            st.session_state["ia_analista_mensagens"] = mensagens
+            st.rerun()
+
 
 st.markdown(
     '<div class="footer">PROJETO DASH VENDAS · PORTFÓLIO DE DADOS + IA · DATASET PÚBLICO OLIST<br>'
