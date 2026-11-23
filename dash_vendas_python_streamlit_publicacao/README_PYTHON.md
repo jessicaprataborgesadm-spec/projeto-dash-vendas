@@ -53,6 +53,18 @@ A série representa o valor dos itens (`olist_order_items.price`) de pedidos cuj
 O dataset é histórico (2016–2018). A previsão de 30 dias exibida no dashboard é uma simulação retrospectiva com corte provisório em 20/08/2018, não uma previsão para o mercado atual. O arquivo de previsão não contém realizado maduro para calcular métricas de erro.
 
 
+## Roteador determinístico de perguntas
+
+O roteador está em `ia_analista/router.py`. A primeira versão usa padrões explícitos em português, sem LLM, para:
+- reconhecer as sete intenções do catálogo;
+- extrair datas em `DD/MM/AAAA` ou `AAAA-MM-DD`, mês/ano por extenso, semestre e ano;
+- pedir esclarecimento quando a intenção exige período e ele não foi informado;
+- sinalizar perguntas que misturam mais de uma intenção;
+- encaminhar perguntas sem dimensão disponível para `out_of_scope`;
+- chamar o motor analítico por meio de `executar_pergunta` somente quando a rota estiver pronta.
+
+Status de roteamento: `ready`, `ambiguous`, `invalid` e `out_of_scope`. Essa versão é baseada em regras, não compreende todas as variações de linguagem e ainda não está integrada ao Streamlit nem conectada a um LLM.
+
 ## Motor determinístico da IA Analista
 
 O módulo inicial está em `ia_analista/analytics.py`. Ele calcula os fatos das sete intenções cadastradas no catálogo, usando os CSVs existentes. **Ainda não identifica perguntas em linguagem natural, não chama LLM e ainda não está conectado à interface Streamlit.**
