@@ -126,7 +126,7 @@ GEMINI_MODEL = "gemini-3.8-flash"
 
 A chave também pode ser fornecida pela variável de ambiente `GEMINI_API_KEY`. O arquivo `.streamlit/secrets.toml` já está ignorado pelo Git. **Não coloque a chave em arquivos versionados, capturas de tela ou mensagens de chat.**
 
-Crie a chave em [Google AI Studio](https://aistudio.google.com/api-keys). A camada gratuita pode usar o conteúdo para melhorar os produtos do Google; na camada paga, o conteúdo não é usado para essa finalidade. A camada paga exige configurar faturamento. Consulte os [preços oficiais](https://ai.google.dev/gemini-api/docs/pricing) antes de habilitar cobrança.
+Crie a chave em [Google AI Studio](https://aistudio.google.com/api-keys) usando exclusivamente o nível gratuito. A tabela oficial lista entrada e saída de tokens sem custo para `gemini-3.8-flash`, sujeito aos limites de uso e à disponibilidade da conta. **Não habilite billing, não associe cartão e não faça upgrade.** O Google informa que o conteúdo do nível gratuito pode ser usado para melhorar seus produtos. Por isso, esta aplicação só envia a pergunta atual e fatos agregados da base pública Olist. Não envie dados pessoais, confidenciais, chaves ou credenciais. Se a página exigir faturamento ou indicar cobrança, pare e use o modo determinístico, que continua funcionando sem LLM.
 
 Sem chave ou quando a API falhar, o dashboard continua exibindo os resultados determinísticos do Python.
 
