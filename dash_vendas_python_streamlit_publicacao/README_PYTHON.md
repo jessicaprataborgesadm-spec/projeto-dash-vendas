@@ -51,3 +51,45 @@ Os scripts geram os CSVs de resultados utilizados pelo dashboard. A previsão de
 A série representa o valor dos itens (`olist_order_items.price`) de pedidos cujo status atual na fonte é `delivered`, agrupado pela data de compra. Não inclui frete e não deve ser interpretada como faturamento contábil ou receita líquida reconciliada.
 
 O dataset é histórico (2016–2018). A previsão de 30 dias exibida no dashboard é uma simulação retrospectiva com corte provisório em 20/08/2018, não uma previsão para o mercado atual. O arquivo de previsão não contém realizado maduro para calcular métricas de erro.
+
+
+## Motor determinístico da IA Analista
+
+O módulo inicial está em `ia_analista/analytics.py`. Ele calcula os fatos das sete intenções cadastradas no catálogo, usando os CSVs existentes. **Ainda não identifica perguntas em linguagem natural, não chama LLM e ainda não está conectado à interface Streamlit.**
+
+Funções disponíveis:
+- `analisar_evolucao`: total, média, mediana e extremos do período;
+- `comparar_periodos`: mesmo período do ano anterior ou período imediatamente anterior;
+- `analisar_dia_semana`: estatísticas por dia da semana;
+- `analisar_calendario`: comparação descritiva de feriados/datas sinalizadas;
+- `diagnosticar_variacao`: comparação de janelas equivalentes e maiores diferenças diárias;
+- `consultar_previsao_30_dias`: resumo da simulação ativa;
+- `avaliar_modelos`: teste inicial, cinco janelas e diagnóstico recente;
+- `executar_intencao`: dispatcher explícito para as intenções cadastradas.
+
+As respostas usam um contrato estruturado com `status`, `intent`, `metric`, `period`, `facts`, `coverage` e `limitations`. Os status incluem `ok`, `partial_data`, `insufficient_data` e `out_of_scope`.
+
+Exemplo de uso a partir desta pasta:
+
+```python
+from ia_analista.analytics import carregar_fontes, executar_intencao
+
+fontes = carregar_fontes()
+resultado = executar_intencao(
+    "period_evolution",
+    fontes,
+    {"data_inicio": "2018-07-01", "data_fim": "2018-07-30"},
+)
+print(resultado)
+```
+
+### Executar os testes do motor
+
+Com as dependências instaladas, execute a partir desta pasta:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Os testes usam a biblioteca padrão `unittest`; não exigem instalar pytest. A bateria atual cobre as sete intenções, cobertura parcial, datas inválidas/duplicadas, serialização JSON e valores de referência conhecidos.
+
