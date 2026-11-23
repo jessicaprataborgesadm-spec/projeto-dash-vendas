@@ -175,6 +175,7 @@ projeto-dash-vendas/
 │   ├── 01_auditoria_order_items.sql
 │   ├── ...
 │   └── 18_feature_faturamento_ano_anterior.sql
+├── PROJECT_MEMORY.md
 ├── .gitignore
 └── README.md
 ```
@@ -200,11 +201,17 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [x] Realizar validação temporal em cinco janelas.
 - [x] Gerar uma previsão retrospectiva simulada de 30 dias.
 - [x] Construir e revisar visualmente o dashboard Streamlit local.
-- [ ] Concluir revisão de qualidade e estabilidade do modelo e do corte temporal.
+- [x] Concluir a revisão diagnóstica de qualidade e estabilidade do modelo e do corte temporal, com limitações registradas (cinco janelas, diagnóstico recente e sensibilidade do corte).
 - [x] Revisar e versionar os scripts Python, a aplicação Streamlit e os seis CSVs agregados.
 - [x] Documentar as dependências e as instruções de execução em `dash_vendas_python_streamlit_publicacao/README_PYTHON.md`.
 - [x] Validar a instalação e a execução a partir de um clone limpo do repositório.
-- [ ] Implementar a IA Analista depois da validação da camada analítica.
+- [x] Reproduzir o script 24 e validar estruturalmente o CSV da previsão com corte em 20/08/2018.
+- [x] Conferir visualmente o dashboard atualizado com a nova previsão.
+- [ ] (Fase futura, fora do escopo da V1) Implementar a IA Analista depois da validação da camada analítica.
+
+## Memória de continuidade
+
+As decisões de arquitetura, métrica, features, modelagem, validação, previsão ativa e limites da versão estão registradas em [PROJECT_MEMORY.md](PROJECT_MEMORY.md). Consulte esse arquivo antes de retomar ou alterar o projeto.
 
 ## Princípios analíticos
 
