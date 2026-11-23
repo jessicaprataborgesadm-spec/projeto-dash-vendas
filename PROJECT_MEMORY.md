@@ -12,7 +12,7 @@ Construir uma solução de Dados + IA com dados públicos do e-commerce Olist pa
 - apresentar histórico, validação e previsão em um dashboard Streamlit local;
 - implementar uma IA Analista conversacional que responda perguntas de negócio usando fatos calculados de forma determinística.
 
-**Status atual:** a fundação analítica e preditiva está concluída e validada; o dashboard local está concluído. **O projeto completo ainda NÃO está concluído porque a IA Analista, parte central do objetivo, não foi implementada.**
+**Status atual:** a fundação analítica e preditiva está concluída e validada; o dashboard local está concluído. A IA Analista já possui motor determinístico, roteador por regras e uma interface conversacional inicial publicada no Streamlit. **O projeto completo ainda NÃO está concluído:** a integração visual precisa ser validada localmente e falta escolher/conectar um LLM para interpretação em linguagem natural.
 
 **Próxima etapa obrigatória:** IA Analista conversacional integrada ao dashboard. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais e não bloqueiam a primeira entrega funcional da IA.
 
@@ -44,7 +44,7 @@ Olist / Kaggle
     -> Streamlit local
 ```
 
-O dashboard lê seis CSVs locais e não consulta BigQuery diretamente. A camada Streamlit está em `dash_vendas_python_streamlit_publicacao/`. O dashboard não está hospedado. A camada de IA ainda não existe; será adicionada ao dashboard sem enviar a base inteira ao LLM.
+O dashboard lê seis CSVs locais e não consulta BigQuery diretamente. A camada Streamlit está em `dash_vendas_python_streamlit_publicacao/`. A página IA Analista carrega, sob demanda, as cinco fontes analíticas definidas em `ia_analista/analytics.py`. O dashboard não está hospedado. A IA não envia a base inteira a um LLM; nesta etapa, não há LLM conectado.
 
 ## 4. SQL e dados
 
@@ -207,7 +207,7 @@ O motor lê os CSVs locais existentes e retorna fatos em contrato estruturado:
 
 Status previstos: `ok`, `partial_data`, `insufficient_data`, `out_of_scope`. Períodos sem cobertura são sinalizados; referências anuais nulas não são substituídas por zero; a previsão simulada não recebe métricas de erro sem realizado.
 
-**Testes:** `tests/test_analytics.py` e `tests/test_router.py`. Foram executados 28 testes automatizados com `unittest`, todos aprovados. Cobrem sete intenções, resultados conhecidos, cobertura parcial, datas inválidas/duplicadas, serialização JSON, extração de datas, perguntas ambíguas e fora do escopo. Os testes foram executados com DeprecationWarnings tratados como erros e passaram sem avisos após correção de unidade explícita em `pd.Timedelta`.
+**Testes:** `tests/test_analytics.py` e `tests/test_router.py` somam 28 testes automatizados executados localmente, todos aprovados com `DeprecationWarning` tratado como erro. Foi acrescentado `tests/test_app_syntax.py` para verificar a compilação sintática de `app.py`; esse novo teste ainda aguarda execução local. Portanto, a próxima suíte completa terá 29 testes.
 
 **Roteador determinístico implementado:** `dash_vendas_python_streamlit_publicacao/ia_analista/router.py`.
 
@@ -219,7 +219,7 @@ Regras já cobertas: datas em DD/MM/AAAA e AAAA-MM-DD; mês/ano por extenso; sem
 
 Testes do roteador: `tests/test_router.py`, 14 testes. A suíte combinada passou com **28 testes**. A execução local foi feita com `python -W error::DeprecationWarning -m unittest discover -s tests -v`, sem warnings de depreciação após corrigir o uso de `pd.Timedelta` com unidade explícita.
 
-**Limite atual:** o roteador é baseado em regras e padrões explícitos, não em compreensão semântica de LLM. Ele ainda não está integrado ao `app.py`; não há chamada a LLM. Perguntas fora dos padrões suportados podem precisar de reformulação.
+**Interface conversacional integrada ao `app.py`:** a página `IA Analista` usa `st.chat_input` e `st.chat_message`, carrega as fontes analíticas apenas quando acessada, mantém o histórico durante a sessão do Streamlit e permite limpar a conversa. As respostas são apresentadas por modelos determinísticos de exibição para cada intenção; não são geradas por LLM. Os seis painéis originais permanecem no menu.
 
 ### Fluxo arquitetural desejado
 
@@ -248,11 +248,11 @@ Regras:
 3. [x] Implementar roteador por regras explícitas e validação de parâmetros, sem LLM.
 4. [ ] Escolher o provedor/modelo (Gemini/Vertex AI são possibilidades, não decisão tomada) e configurar credenciais fora do Git.
 5. [ ] Conectar o LLM somente à interpretação dos fatos estruturados.
-6. [ ] Integrar a experiência conversacional ao Streamlit.
-7. [ ] Testar perguntas válidas, ambíguas, sem dados, com cobertura parcial e fora de escopo; conferir números contra Python/SQL.
-8. [ ] Documentar arquitetura, segurança, custos/limites e configuração.
+6. [x] Implementar a primeira interface conversacional determinística no Streamlit, com histórico de sessão e carregamento sob demanda.
+7. [ ] Validar localmente a página de chat e testar perguntas válidas, ambíguas, sem dados, com cobertura parcial e fora de escopo; conferir números contra Python/SQL.
+8. [ ] Escolher e integrar um LLM para interpretar os fatos estruturados; documentar arquitetura, segurança, custos/limites e configuração.
 
-**Próxima tarefa técnica:** testar exemplos adicionais e integrar o roteador/motor ao fluxo do Streamlit sem alterar a identidade visual. Depois, escolher o provedor LLM e conectar somente os fatos estruturados. Não executar SQL livre gerada pelo modelo.
+**Próxima tarefa técnica:** executar localmente a suíte de 29 testes e abrir a página IA Analista no Streamlit para validar o fluxo de conversa, histórico, esclarecimentos, cobertura parcial e limpeza. Somente após essa validação, escolher o provedor LLM e conectar o modelo apenas aos fatos estruturados. Não executar SQL livre gerada pelo modelo.
 
 **Critério de conclusão:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
 
