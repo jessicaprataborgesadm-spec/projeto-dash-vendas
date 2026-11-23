@@ -250,8 +250,8 @@ def comparar_periodos(base_diaria: pd.DataFrame, data_inicio: Any, data_fim: Any
         coluna_comp = "faturamento_ano_anterior"
     elif tipo_comparacao == "periodo_anterior":
         quantidade_dias = len(pd.date_range(inicio, fim, freq="D"))
-        comp_inicio = inicio - pd.Timedelta(days=quantidade_dias)
-        comp_fim = inicio - pd.Timedelta(days=1)
+        comp_inicio = inicio - pd.Timedelta(value=int(quantidade_dias), unit="D")
+        comp_fim = inicio - pd.Timedelta(value=1, unit="D")
         anterior, cobertura_anterior = _recorte_periodo(base, comp_inicio, comp_fim)
         pares = pd.DataFrame()
         tipo = "periodo_anterior_equivalente"
@@ -375,8 +375,8 @@ def diagnosticar_variacao(base_diaria: pd.DataFrame, data_inicio: Any, data_fim:
         raise ValueError("Informe comparacao_inicio e comparacao_fim juntos.")
     quantidade_dias = len(pd.date_range(inicio, fim, freq="D"))
     if comparacao_inicio is None:
-        comp_inicio = inicio - pd.Timedelta(days=quantidade_dias)
-        comp_fim = inicio - pd.Timedelta(days=1)
+        comp_inicio = inicio - pd.Timedelta(value=int(quantidade_dias), unit="D")
+        comp_fim = inicio - pd.Timedelta(value=1, unit="D")
     else:
         comp_inicio, comp_fim = _periodo(comparacao_inicio, comparacao_fim)
         if len(pd.date_range(comp_inicio, comp_fim, freq="D")) != quantidade_dias:
@@ -391,7 +391,7 @@ def diagnosticar_variacao(base_diaria: pd.DataFrame, data_inicio: Any, data_fim:
     anterior_cols = ["data", "faturamento_diario"]
     atual_alinhado = atual[atual_cols].copy()
     anterior_alinhado = anterior[anterior_cols].copy()
-    anterior_alinhado["data"] = anterior_alinhado["data"] + pd.Timedelta(days=quantidade_dias)
+    anterior_alinhado["data"] = anterior_alinhado["data"] + pd.Timedelta(value=int(quantidade_dias), unit="D")
     anterior_alinhado = anterior_alinhado.rename(columns={"faturamento_diario": "faturamento_comparacao"})
     pareado = atual_alinhado.merge(anterior_alinhado, on="data", how="inner")
     pareado["diferenca_diaria"] = pareado["faturamento_diario"] - pareado["faturamento_comparacao"]
