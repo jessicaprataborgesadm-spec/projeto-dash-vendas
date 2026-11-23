@@ -207,7 +207,7 @@ O motor lê os CSVs locais existentes e retorna fatos em contrato estruturado:
 
 Status previstos: `ok`, `partial_data`, `insufficient_data`, `out_of_scope`. Períodos sem cobertura são sinalizados; referências anuais nulas não são substituídas por zero; a previsão simulada não recebe métricas de erro sem realizado.
 
-**Testes:** `tests/test_analytics.py` e `tests/test_router.py` somam 28 testes automatizados executados localmente, todos aprovados com `DeprecationWarning` tratado como erro. Foi acrescentado `tests/test_app_syntax.py` para verificar a compilação sintática de `app.py`; esse novo teste ainda aguarda execução local. Portanto, a próxima suíte completa terá 29 testes.
+**Testes:** `tests/test_analytics.py`, `tests/test_router.py` e `tests/test_app_syntax.py` somam 29 testes automatizados executados localmente, todos aprovados com `DeprecationWarning` tratado como erro.
 
 **Roteador determinístico implementado:** `dash_vendas_python_streamlit_publicacao/ia_analista/router.py`.
 
@@ -219,7 +219,9 @@ Regras já cobertas: datas em DD/MM/AAAA e AAAA-MM-DD; mês/ano por extenso; sem
 
 Testes do roteador: `tests/test_router.py`, 14 testes. A suíte combinada passou com **28 testes**. A execução local foi feita com `python -W error::DeprecationWarning -m unittest discover -s tests -v`, sem warnings de depreciação após corrigir o uso de `pd.Timedelta` com unidade explícita.
 
-**Interface conversacional integrada ao `app.py`:** a página `IA Analista` usa `st.chat_input` e `st.chat_message`, carrega as fontes analíticas apenas quando acessada, mantém o histórico durante a sessão do Streamlit e permite limpar a conversa. As respostas são apresentadas por modelos determinísticos de exibição para cada intenção; não são geradas por LLM. Os seis painéis originais permanecem no menu.
+**Interface conversacional integrada e validada localmente:** a página `IA Analista` usa `st.chat_input` e `st.chat_message`, carrega as fontes analíticas apenas quando acessada, mantém o histórico durante a sessão do Streamlit e permite limpar a conversa. As respostas são apresentadas por modelos determinísticos de exibição para cada intenção; não são geradas por LLM. As sete intenções do MVP foram exercitadas manualmente no dashboard e uma pergunta por estado foi corretamente recusada por ausência da dimensão geográfica. Os seis painéis originais permanecem no menu.
+
+**Observação de UX pendente:** no teste de diagnóstico formulado como queda (01/08 a 20/08/2018), o acumulado comparado foi positivo em 16,03%, embora houvesse quedas em dias isolados. A tela exibe os números e as maiores quedas, mas a interpretação textual deve explicitar que não houve queda no acumulado e separar o resultado agregado dos dias individuais.
 
 ### Fluxo arquitetural desejado
 
@@ -249,10 +251,12 @@ Regras:
 4. [ ] Escolher o provedor/modelo (Gemini/Vertex AI são possibilidades, não decisão tomada) e configurar credenciais fora do Git.
 5. [ ] Conectar o LLM somente à interpretação dos fatos estruturados.
 6. [x] Implementar a primeira interface conversacional determinística no Streamlit, com histórico de sessão e carregamento sob demanda.
-7. [ ] Validar localmente a página de chat e testar perguntas válidas, ambíguas, sem dados, com cobertura parcial e fora de escopo; conferir números contra Python/SQL.
+7. [x] Validar manualmente no dashboard as sete intenções do MVP e uma pergunta por estado fora do escopo; números exibidos conferem com os resultados automatizados.
+   - [ ] Validar também casos de borda na interface: pergunta ambígua/inválida, ausência de CSV, cobertura parcial e limpeza da conversa.
+   - [ ] Melhorar a apresentação textual do diagnóstico para distinguir crescimento acumulado de quedas diárias.
 8. [ ] Escolher e integrar um LLM para interpretar os fatos estruturados; documentar arquitetura, segurança, custos/limites e configuração.
 
-**Próxima tarefa técnica:** executar localmente a suíte de 29 testes e abrir a página IA Analista no Streamlit para validar o fluxo de conversa, histórico, esclarecimentos, cobertura parcial e limpeza. Somente após essa validação, escolher o provedor LLM e conectar o modelo apenas aos fatos estruturados. Não executar SQL livre gerada pelo modelo.
+**Próxima tarefa técnica:** tratar a melhoria de UX do diagnóstico e validar os casos de borda restantes da interface. Depois, escolher o provedor LLM e conectar o modelo apenas aos fatos estruturados. Não executar SQL livre gerada pelo modelo.
 
 **Critério de conclusão:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
 
