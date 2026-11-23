@@ -171,25 +171,53 @@ Comando Windows, a partir da pasta `dash_vendas_python_streamlit_publicacao`:
 
 ## 10. IA Analista: objetivo central ainda pendente
 
-A IA Analista faz parte do objetivo principal do Projeto Dash Vendas. Não deve ser tratada como simples melhoria opcional.
+A IA Analista faz parte do objetivo principal do Projeto Dash Vendas. O projeto completo não está concluído até que essa camada esteja integrada e validada no dashboard.
 
-**Catálogo inicial criado:** [docs/catalogo_intencoes_ia_analista.md](docs/catalogo_intencoes_ia_analista.md). Ele define sete intenções:
+### Catálogo de intenções
+
+Documento: [docs/catalogo_intencoes_ia_analista.md](docs/catalogo_intencoes_ia_analista.md).
+
+O MVP tem sete intenções:
 1. evolução do indicador;
 2. comparação entre períodos/ano anterior;
 3. padrão por dia da semana;
 4. calendário e feriados;
-5. diagnóstico de queda/aumento (descritivo, sem afirmar causalidade);
-6. consulta da previsão simulada de 30 dias;
+5. diagnóstico de queda/aumento, sem afirmar causalidade;
+6. consulta da previsão simulada;
 7. desempenho e comparação dos modelos.
 
-O catálogo também estabelece perguntas fora do escopo atual (estado/cidade, produto/categoria, cliente e forma de pagamento), pois a base diária existente não contém essas dimensões. A comparação anual depende da cobertura não nula de `faturamento_ano_anterior`. A análise de feriados deve sempre informar o tamanho da amostra.
+Perguntas por estado/cidade, produto/categoria, cliente ou forma de pagamento estão fora do escopo inicial, pois a base diária atual não possui essas dimensões.
+
+### Motor analítico determinístico
+
+**Implementado e publicado:** `dash_vendas_python_streamlit_publicacao/ia_analista/analytics.py`.
+
+Funções:
+- `analisar_evolucao`;
+- `comparar_periodos`;
+- `analisar_dia_semana`;
+- `analisar_calendario`;
+- `diagnosticar_variacao`;
+- `consultar_previsao_30_dias`;
+- `avaliar_modelos`;
+- `executar_intencao`, dispatcher explícito para intenções cadastradas.
+
+O motor lê os CSVs locais existentes e retorna fatos em contrato estruturado:
+`status`, `intent`, `metric`, `period`, `facts`, `coverage`, `limitations`.
+
+Status previstos: `ok`, `partial_data`, `insufficient_data`, `out_of_scope`. Períodos sem cobertura são sinalizados; referências anuais nulas não são substituídas por zero; a previsão simulada não recebe métricas de erro sem realizado.
+
+**Testes:** `dash_vendas_python_streamlit_publicacao/tests/test_analytics.py`. Foram executados 14 testes automatizados com `unittest`, todos aprovados. Cobrem as sete intenções, resultados conhecidos, cobertura parcial, datas inválidas/duplicadas, serialização JSON e intenção fora do escopo.
+
+**Limite atual:** o motor ainda não está integrado ao `app.py`; não há classificador de linguagem natural nem chamada a LLM. `executar_intencao` é um dispatcher por identificador explícito, não um roteador de mensagens livres.
 
 ### Fluxo arquitetural desejado
 
 ```text
 Pergunta do usuário
     -> identificação/roteamento da intenção
-    -> função analítica determinística (SQL/BigQuery ou Python)
+    -> validação de parâmetros
+    -> função analítica determinística (Python/SQL)
     -> validação e estruturação dos fatos
     -> envio somente dos resultados relevantes ao LLM
     -> interpretação e resposta em linguagem natural
@@ -201,87 +229,25 @@ Regras:
 - Entregar ao LLM somente fatos estruturados necessários à pergunta, incluindo período, filtros, definições e limitações.
 - A resposta deve distinguir dado observado, inferência e hipótese.
 - Intenções desconhecidas, períodos sem cobertura ou perguntas sem dados suficientes devem receber respostas explícitas, sem inventar números.
+- Não executar SQL gerada livremente pelo LLM.
 
-### MVP inicial recomendado, usando primeiro os artefatos existentes
+### Próximas etapas da IA
 
-Perguntas candidatas que a base diária e os CSVs atuais podem sustentar:
-1. Como o valor diário evoluiu no período?
-2. Como o período selecionado se compara à referência do ano anterior, onde houver cobertura?
-3. Quais dias da semana apresentam maiores e menores valores médios?
-4. O que o calendário/feriados mostra sobre o comportamento observado?
-5. Qual é a previsão simulada de 30 dias e como ela se compara ao baseline?
-6. Como o Random Forest se saiu nos testes e nas cinco janelas temporais?
-
-O MVP não deve prometer análise por estado: a base diária atual tem uma linha por dia e não contém dimensão geográfica. Para responder "qual estado contribuiu mais", será necessário carregar/auditar as tabelas de clientes/localização e criar agregações com JOINs e cardinalidades validados.
-
-### Etapas de implementação da IA
-
-1. [x] Fechar o catálogo inicial de intenções e exemplos de perguntas (documento publicado).
-2. [ ] Implementar funções determinísticas que consultem os CSVs atuais e/ou consultas SQL aprovadas, retornando fatos estruturados.
-3. [ ] Implementar roteamento de intenção e validação de entidades/períodos; nenhuma SQL gerada livremente pelo LLM deve ser executada sem validação.
-4. [ ] Escolher o provedor/modelo (Gemini/Vertex AI são possibilidades já consideradas, mas a decisão ainda está aberta) e configurar credenciais fora do Git.
-5. [ ] Conectar o LLM apenas à interpretação dos fatos estruturados.
+1. [x] Fechar o catálogo de intenções e exemplos de perguntas.
+2. [x] Implementar funções analíticas determinísticas em Python e resultados estruturados.
+3. [ ] Implementar roteamento de linguagem natural para as intenções e validação explícita de parâmetros.
+4. [ ] Escolher o provedor/modelo (Gemini/Vertex AI são possibilidades, não decisão tomada) e configurar credenciais fora do Git.
+5. [ ] Conectar o LLM somente à interpretação dos fatos estruturados.
 6. [ ] Integrar a experiência conversacional ao Streamlit.
-7. [ ] Testar perguntas respondíveis, perguntas sem dados, ambiguidades, períodos sem cobertura e respostas fora de escopo; verificar que números coincidem com SQL/Python.
-8. [ ] Documentar arquitetura, segurança, custos/limites e exemplos no README.
+7. [ ] Testar perguntas válidas, ambíguas, sem dados, com cobertura parcial e fora de escopo; conferir números contra Python/SQL.
+8. [ ] Documentar arquitetura, segurança, custos/limites e configuração.
 
-**Próxima tarefa técnica:** implementar a camada determinística em Python, sem ainda integrar LLM ou modificar a arquitetura do dashboard.
+**Próxima tarefa técnica:** criar o roteador de intenções e o validador dos parâmetros de entrada. Não integrar o LLM ainda.
 
-**Critério de conclusão do projeto:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
-
-## 11. Encerramento e expansões opcionais
-
-A fundação analítica/preditiva e o dashboard estão concluídos. O **Projeto Dash Vendas como solução Dados + IA permanece em andamento até a entrega e validação da IA Analista**.
-
-Depois da IA funcional, podem ser avaliadas como expansões opcionais: publicar/hospedar o dashboard, conexão operacional/atualização de dados no BigQuery e inferência local/WebGPU. Essas expansões não são pré-requisitos para concluir o MVP da IA Analista.
-
-A IA Analista faz parte do objetivo principal do Projeto Dash Vendas. Não deve ser tratada como simples melhoria opcional.
-
-### Fluxo arquitetural desejado
-
-```text
-Pergunta do usuário
-    -> identificação/roteamento da intenção
-    -> função analítica determinística (SQL/BigQuery ou Python)
-    -> validação e estruturação dos fatos
-    -> envio somente dos resultados relevantes ao LLM
-    -> interpretação e resposta em linguagem natural
-```
-
-Regras:
-- O LLM não calcula métricas por conta própria nem recebe automaticamente toda a base.
-- Valores, comparações, agregações e indicadores devem ser calculados por SQL/Python de forma reproduzível.
-- Entregar ao LLM somente fatos estruturados necessários à pergunta, incluindo período, filtros, definições e limitações.
-- A resposta deve distinguir dado observado, inferência e hipótese.
-- Intenções desconhecidas, períodos sem cobertura ou perguntas sem dados suficientes devem receber respostas explícitas, sem inventar números.
-
-### MVP inicial recomendado, usando primeiro os artefatos existentes
-
-Perguntas candidatas que a base diária e os CSVs atuais podem sustentar:
-1. Como o valor diário evoluiu no período?
-2. Como o período selecionado se compara à referência do ano anterior, onde houver cobertura?
-3. Quais dias da semana apresentam maiores e menores valores médios?
-4. O que o calendário/feriados mostra sobre o comportamento observado?
-5. Qual é a previsão simulada de 30 dias e como ela se compara ao baseline?
-6. Como o Random Forest se saiu nos testes e nas cinco janelas temporais?
-
-O MVP não deve prometer análise por estado: a base diária atual tem uma linha por dia e não contém dimensão geográfica. Para responder "qual estado contribuiu mais", será necessário carregar/auditar as tabelas de clientes/localização e criar agregações com JOINs e cardinalidades validados.
-
-### Etapas de implementação da IA
-
-1. Fechar o catálogo de intenções e os exemplos de perguntas suportadas.
-2. Implementar funções determinísticas que consultem os CSVs atuais e/ou consultas SQL aprovadas, retornando fatos estruturados.
-3. Implementar roteamento de intenção e validação de entidades/períodos; nenhuma SQL gerada livremente pelo LLM deve ser executada sem validação.
-4. Escolher o provedor/modelo (Gemini/Vertex AI são possibilidades já consideradas, mas a decisão ainda está aberta) e configurar credenciais fora do Git.
-5. Conectar o LLM apenas à interpretação dos fatos estruturados.
-6. Integrar a experiência conversacional ao Streamlit.
-7. Testar perguntas respondíveis, perguntas sem dados, ambiguidades, períodos sem cobertura e respostas fora de escopo; verificar que números coincidem com SQL/Python.
-8. Documentar arquitetura, segurança, custos/limites e exemplos no README.
-
-**Critério de conclusão do projeto:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
+**Critério de conclusão:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
 
 ## 11. Encerramento e expansões opcionais
 
-A fundação analítica/preditiva e o dashboard estão concluídos. O **Projeto Dash Vendas como solução Dados + IA permanece em andamento até a entrega e validação da IA Analista**.
+A fundação analítica/preditiva, o dashboard local e o motor determinístico estão concluídos. O **Projeto Dash Vendas como solução Dados + IA permanece em andamento até a entrega e validação da IA Analista conversacional**.
 
-Depois da IA funcional, podem ser avaliadas como expansões opcionais: publicar/hospedar o dashboard, conexão operacional/atualização de dados no BigQuery e inferência local/WebGPU. Essas expansões não são pré-requisitos para concluir o MVP da IA Analista.
+Depois da IA funcional, podem ser avaliadas como expansões opcionais: publicar/hospedar o dashboard, conectar atualização operacional de dados ao BigQuery, incluir dimensões adicionais com auditoria e avaliar inferência local/WebGPU. Essas expansões não são pré-requisitos para concluir o MVP da IA Analista.
