@@ -4,7 +4,7 @@ Projeto de portfólio em **Análise de Dados, Engenharia Analítica e Machine Le
 
 O objetivo é transformar dados transacionais em uma base analítica diária, investigar padrões de vendas e avaliar abordagens para previsão de faturamento, documentando decisões, limitações e resultados.
 
-> **Status:** fundação analítica/preditiva e dashboard local concluídos. A interface determinística inicial da IA Analista foi integrada ao Streamlit. A validação local dessa interface e a integração de um LLM continuam pendentes. O dashboard não está hospedado nem conectado diretamente ao BigQuery.
+> **Status:** fundação analítica/preditiva e dashboard local concluídos. A interface da IA Analista foi validada e a integração opcional com Gemini foi implementada. Falta configurar a chave local e validar chamadas reais ao modelo, além dos casos de borda. O dashboard não está hospedado nem conectado diretamente ao BigQuery.
 
 ## Problema de negócio
 
@@ -68,9 +68,10 @@ IA Analista
   |-- roteador determinístico
   |-- motor analítico Python
   |-- interface conversacional local
+  |-- Gemini Developer API (interpretação opcional dos fatos)
   |
   v
-LLM (integração futura; ainda não conectado)
+Gemini 3.8 Flash (quando a chave local estiver configurada)
 ```
 
 O fluxo Python e o dashboard utilizam arquivos CSV exportados. Os scripts, a aplicação e os seis CSVs necessários ao dashboard estão versionados em `dash_vendas_python_streamlit_publicacao/`. A aplicação não está hospedada e não consulta o BigQuery em tempo real.
@@ -154,7 +155,7 @@ Foi comparada a média dos sete dias encerrados em cada data de corte com a méd
 
 ## Dashboard
 
-Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação lateral e seis áreas: Visão geral, Histórico, Modelos, Validação temporal, Previsão de 30 dias e IA Analista. A página IA Analista contém a primeira interface de chat determinística, ainda sem LLM.
+Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação lateral e seis áreas: Visão geral, Histórico, Modelos, Validação temporal, Previsão de 30 dias e IA Analista. A página IA Analista mantém os cálculos determinísticos e pode usar Gemini 3.8 Flash para interpretar os resultados estruturados quando a chave local estiver configurada.
 
 As telas foram revisadas visualmente e os principais indicadores foram comparados com os resultados dos experimentos. O código e os CSVs usados pelo dashboard estão publicados em `dash_vendas_python_streamlit_publicacao/`. As instruções de instalação e execução estão em [README_PYTHON.md](dash_vendas_python_streamlit_publicacao/README_PYTHON.md). A instalação das dependências e a execução do dashboard foram validadas a partir de um clone limpo do repositório, usando Python 3.14.2.
 
@@ -190,7 +191,7 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - O corte em 20/08/2018 é provisório.
 - A validação temporal contém poucas janelas e o Random Forest não venceu todas.
 - A análise da Black Friday foi feita sobre a base diária agregada; não foi concluída a decomposição dos pedidos individuais diretamente nas tabelas RAW.
-- A interface inicial da IA Analista usa roteamento por regras e cálculos determinísticos. Ainda não há interpretação generativa por LLM; Gemini/Vertex AI são possibilidades de provedor, mas a escolha está pendente.
+- A interface da IA Analista usa roteamento por regras e cálculos determinísticos. A integração opcional com Gemini Developer API (`gemini-3.8-flash`) está implementada, mas a chave local e a chamada real ainda precisam ser validadas.
 - A interface conversacional foi publicada e validada localmente nas sete intenções do MVP e em uma pergunta fora do escopo. A validação de casos de borda e a integração de um LLM continuam pendentes.
 
 ## Roadmap do Projeto Dash Vendas
@@ -213,10 +214,12 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [x] Criar camada determinística em Python para as sete intenções, calculando métricas fora do LLM (`ia_analista/analytics.py`).
 - [x] Padronizar resultados estruturados com status, intenção, métrica, período, fatos, cobertura e limitações.
 - [x] Criar 28 testes automatizados para o motor e o roteador (`tests/test_analytics.py` e `tests/test_router.py`).
-- [ ] Executar o novo teste de compilação de `app.py` (`tests/test_app_syntax.py`) junto à suíte completa de 29 testes.
+- [x] Executar 29 testes do motor, roteador e sintaxe do `app.py` localmente.
+- [ ] Executar seis novos testes simulados da integração LLM (`tests/test_llm.py`), totalizando 35 testes.
 - [x] Criar roteador determinístico por regras explícitas e validação de parâmetros (`ia_analista/router.py`).
-- [ ] Escolher e integrar o provedor de LLM; Gemini/Vertex AI são candidatos, não decisão tomada.
-- [ ] Conectar o LLM somente aos fatos estruturados, sem enviar automaticamente toda a base.
+- [x] Escolher Gemini Developer API e modelo `gemini-3.8-flash` para a primeira integração.
+- [x] Implementar a chamada opcional ao Gemini somente com a pergunta atual e o envelope determinístico, sem CSVs, histórico completo, ferramentas ou SQL.
+- [ ] Configurar a chave local e validar uma chamada real ao Gemini.
 - [x] Integrar uma primeira interface conversacional determinística ao Streamlit (página `IA Analista`).
 - [x] Validar localmente as sete intenções do MVP e uma pergunta geográfica fora do escopo.
 - [ ] Validar manualmente casos de borda: pergunta ambígua/inválida, CSV ausente, cobertura parcial e limpeza da conversa.
@@ -224,7 +227,8 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [ ] Escolher e integrar o provedor de LLM para interpretação dos fatos estruturados.
 - [ ] Testar respostas, perguntas ambíguas, ausência de dados, cobertura temporal e perguntas fora do escopo.
 - [x] Documentar catálogo, motor determinístico, roteador e execução dos testes.
-- [ ] Documentar a integração do LLM, fontes, limitações, segurança e configuração.
+- [x] Documentar integração do Gemini, fonte dos fatos, limitações, segurança e configuração.
+- [ ] Validar localmente a chamada real e o fallback quando a chave não estiver configurada.
 
 ### Evoluções opcionais após o MVP
 
@@ -253,3 +257,27 @@ As decisões do projeto estão em [PROJECT_MEMORY.md](PROJECT_MEMORY.md). O cat�
 ---
 
 **Projeto de portfólio com dados públicos.** Resultados e conclusões se limitam às definições, recortes e validações descritos neste documento.
+
+
+### Integração Gemini
+
+A primeira integração usa a **Gemini Developer API** com o modelo `gemini-3.8-flash`, pelo SDK oficial `google-genai`. O LLM atua apenas como camada de interpretação: o Python continua responsável pelos cálculos e validações.
+
+O módulo `ia_analista/llm.py` envia somente a pergunta atual e os campos estruturados do resultado determinístico (`status`, `intent`, `metric`, `period`, `facts`, `coverage` e `limitations`). Não envia CSVs, DataFrames, histórico completo da conversa, nem permite ferramentas ou execução de SQL. O retorno é estruturado em JSON. A narrativa do LLM não pode conter algarismos; os números continuam sendo exibidos diretamente pelos componentes calculados no Python.
+
+Configure a chave somente no ambiente local. A partir de `dash_vendas_python_streamlit_publicacao`, crie `.streamlit/secrets.toml` com:
+
+```toml
+GEMINI_API_KEY = "SUA_CHAVE"
+GEMINI_MODEL = "gemini-3.8-flash"
+```
+
+O arquivo `.streamlit/secrets.toml` já está coberto pelo `.gitignore`. **Nunca envie a chave pelo chat nem a publique no GitHub.**
+
+A camada gratuita da Gemini API pode usar o conteúdo para melhorar os produtos do Google. A camada paga informa que o conteúdo não é usado para esse fim. Como o projeto usa dados públicos agregados, a camada gratuita pode servir para um protótipo, mas a camada paga é preferível caso a prioridade seja evitar esse uso. A ativação da camada paga exige configurar faturamento e pode envolver pré-pagamento; não ative sem conferir as condições vigentes.
+
+Preços publicados para `gemini-3.8-flash` no nível Standard: US$ 0,75 por milhão de tokens de entrada e US$ 3,75 por milhão de tokens de saída até 31/12/2026; a página oficial informa US$ 1,50 e US$ 7,50 a partir de 01/01/2027. Preços podem mudar; consulte a [tabela oficial de preços](https://ai.google.dev/gemini-api/docs/pricing).
+
+Links oficiais: [Google AI Studio / chaves de API](https://aistudio.google.com/api-keys) · [SDK Google Gen AI para Python](https://googleapis.github.io/python-genai/) · [preços da Gemini API](https://ai.google.dev/gemini-api/docs/pricing).
+
+A integração está implementada, mas a chamada real ainda depende de chave local. Se a chave estiver ausente ou o serviço falhar, o dashboard mantém os cartões e resultados determinísticos sem interromper a resposta.
