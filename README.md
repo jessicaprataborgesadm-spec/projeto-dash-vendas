@@ -191,7 +191,7 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - A validação temporal contém poucas janelas e o Random Forest não venceu todas.
 - A análise da Black Friday foi feita sobre a base diária agregada; não foi concluída a decomposição dos pedidos individuais diretamente nas tabelas RAW.
 - A interface inicial da IA Analista usa roteamento por regras e cálculos determinísticos. Ainda não há interpretação generativa por LLM; Gemini/Vertex AI são possibilidades de provedor, mas a escolha está pendente.
-- A interface conversacional foi publicada, mas ainda precisa ser validada visualmente e funcionalmente no ambiente local.
+- A interface conversacional foi publicada e validada localmente nas sete intenções do MVP e em uma pergunta fora do escopo. A validação de casos de borda e a integração de um LLM continuam pendentes.
 
 ## Roadmap do Projeto Dash Vendas
 
@@ -218,7 +218,9 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [ ] Escolher e integrar o provedor de LLM; Gemini/Vertex AI são candidatos, não decisão tomada.
 - [ ] Conectar o LLM somente aos fatos estruturados, sem enviar automaticamente toda a base.
 - [x] Integrar uma primeira interface conversacional determinística ao Streamlit (página `IA Analista`).
-- [ ] Validar localmente o chat, o histórico de sessão, esclarecimentos, cobertura parcial e limpeza da conversa.
+- [x] Validar localmente as sete intenções do MVP e uma pergunta geográfica fora do escopo.
+- [ ] Validar manualmente casos de borda: pergunta ambígua/inválida, CSV ausente, cobertura parcial e limpeza da conversa.
+- [ ] Melhorar o texto do diagnóstico para destacar quando o acumulado é positivo apesar de quedas diárias.
 - [ ] Escolher e integrar o provedor de LLM para interpretação dos fatos estruturados.
 - [ ] Testar respostas, perguntas ambíguas, ausência de dados, cobertura temporal e perguntas fora do escopo.
 - [x] Documentar catálogo, motor determinístico, roteador e execução dos testes.
