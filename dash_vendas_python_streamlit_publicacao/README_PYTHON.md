@@ -63,7 +63,7 @@ O roteador está em `ia_analista/router.py`. A primeira versão usa padrões exp
 - encaminhar perguntas sem dimensão disponível para `out_of_scope`;
 - chamar o motor analítico por meio de `executar_pergunta` somente quando a rota estiver pronta.
 
-Status de roteamento: `ready`, `ambiguous`, `invalid` e `out_of_scope`. Essa versão é baseada em regras e não compreende todas as variações de linguagem. O roteador já é chamado pela página `IA Analista` no Streamlit; ainda não há LLM conectado.
+Status de roteamento: `ready`, `ambiguous`, `invalid` e `out_of_scope`. Essa versão é baseada em regras e não compreende todas as variações de linguagem. O roteador já é chamado pela página `IA Analista` no Streamlit, validada manualmente nas sete intenções e em uma pergunta fora do escopo. Ainda não há LLM conectado.
 
 ## Motor determinístico da IA Analista
 
