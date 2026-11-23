@@ -14,7 +14,7 @@ Construir uma solução de Dados + IA com dados públicos do e-commerce Olist pa
 
 **Status atual:** a fundação analítica e preditiva está concluída e validada; o dashboard local está concluído. A IA Analista já possui motor determinístico, roteador por regras e uma interface conversacional inicial publicada no Streamlit. **O projeto completo ainda NÃO está concluído:** a integração visual precisa ser validada localmente e falta escolher/conectar um LLM para interpretação em linguagem natural.
 
-**Próxima etapa obrigatória:** IA Analista conversacional integrada ao dashboard. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais e não bloqueiam a primeira entrega funcional da IA.
+**Próxima etapa obrigatória:** validar localmente a interface conversacional já integrada e, em seguida, escolher/conectar um LLM para interpretação dos fatos estruturados. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais e não bloqueiam a primeira entrega funcional da IA.
 
 ## 2. Fonte e definição da métrica
 
