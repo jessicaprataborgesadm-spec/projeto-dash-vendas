@@ -63,11 +63,11 @@ O roteador está em `ia_analista/router.py`. A primeira versão usa padrões exp
 - encaminhar perguntas sem dimensão disponível para `out_of_scope`;
 - chamar o motor analítico por meio de `executar_pergunta` somente quando a rota estiver pronta.
 
-Status de roteamento: `ready`, `ambiguous`, `invalid` e `out_of_scope`. Essa versão é baseada em regras, não compreende todas as variações de linguagem e ainda não está integrada ao Streamlit nem conectada a um LLM.
+Status de roteamento: `ready`, `ambiguous`, `invalid` e `out_of_scope`. Essa versão é baseada em regras e não compreende todas as variações de linguagem. O roteador já é chamado pela página `IA Analista` no Streamlit; ainda não há LLM conectado.
 
 ## Motor determinístico da IA Analista
 
-O módulo inicial está em `ia_analista/analytics.py`. Ele calcula os fatos das sete intenções cadastradas no catálogo, usando os CSVs existentes. **Ainda não identifica perguntas em linguagem natural, não chama LLM e ainda não está conectado à interface Streamlit.**
+O módulo está em `ia_analista/analytics.py`. Ele calcula os fatos das sete intenções cadastradas no catálogo, usando os CSVs existentes. A página `IA Analista` carrega essas fontes sob demanda e usa `ia_analista/router.py` para encaminhar perguntas. As respostas são apresentadas por templates determinísticos; não há LLM conectado.
 
 Funções disponíveis:
 - `analisar_evolucao`: total, média, mediana e extremos do período;
@@ -105,3 +105,33 @@ python -m unittest discover -s tests -v
 
 Os testes usam a biblioteca padrão `unittest`; não exigem instalar pytest. A bateria atual cobre as sete intenções, cobertura parcial, datas inválidas/duplicadas, serialização JSON e valores de referência conhecidos.
 
+
+
+## Interface conversacional no Streamlit
+
+A página **IA Analista** foi adicionada ao menu do `app.py`. Ela usa `st.chat_input` e `st.chat_message`, mantendo o histórico em `st.session_state` durante a sessão atual. O botão **Limpar** apaga a conversa da sessão.
+
+As cinco fontes analíticas são carregadas somente ao abrir essa página, por meio de `carregar_fontes()` com cache do Streamlit. As demais páginas continuam usando o carregamento de CSVs que já existia.
+
+Nesta etapa, a resposta é determinística e formatada por intenção. Não existe chamada a LLM, e a interface informa essa limitação. Perguntas sem período, ambíguas, inválidas ou fora do escopo exibem o esclarecimento retornado pelo roteador.
+
+### Validar a aplicação e os testes
+
+A suíte completa inclui:
+- `tests/test_analytics.py`: motor analítico;
+- `tests/test_router.py`: roteamento e execução;
+- `tests/test_app_syntax.py`: compilação sintática do `app.py`.
+
+Execute a partir desta pasta:
+
+```bash
+python -W error::DeprecationWarning -m unittest discover -s tests -v
+```
+
+Depois inicie o dashboard:
+
+```bash
+python -m streamlit run app.py
+```
+
+A suíte anterior de 28 testes do motor e do roteador já passou localmente. O teste sintático novo e a validação manual da interface ainda precisam ser executados no ambiente local.
