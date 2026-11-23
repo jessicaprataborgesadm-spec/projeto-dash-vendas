@@ -185,6 +185,20 @@ IDs técnicos usados no motor determinístico (`ia_analista/analytics.py`):
 
 **Limite:** o resultado histórico não garante desempenho futuro.
 
+## Roteamento determinístico já implementado
+
+Módulo: `dash_vendas_python_streamlit_publicacao/ia_analista/router.py`.
+
+- `route_question(pergunta, fontes)` identifica uma intenção conhecida, extrai período e valida parâmetros.
+- `executar_pergunta(pergunta, fontes)` encaminha a pergunta ao motor determinístico somente quando o status da rota é `ready`.
+- Datas aceitas na primeira versão: `DD/MM/AAAA`, `AAAA-MM-DD`, mês/ano por extenso, semestre e ano completo.
+- Status de roteamento: `ready`, `ambiguous`, `invalid`, `out_of_scope`.
+- Para análises por dia da semana e calendário sem período explícito, a primeira versão usa toda a cobertura disponível e informa essa escolha.
+- Para evolução, comparação e diagnóstico sem período, pede esclarecimento.
+- Se a pergunta combinar intenções diferentes, pede que o usuário escolha uma delas.
+- O roteador é baseado em regras explícitas e não usa LLM. Não cobre todas as formas possíveis de linguagem natural.
+- O roteador e o motor ainda não estão ligados ao `app.py`.
+
 ## 4. Perguntas fora do escopo inicial
 
 Responder de forma explícita que os dados atuais não permitem calcular:
