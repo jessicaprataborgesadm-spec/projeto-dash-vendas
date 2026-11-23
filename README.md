@@ -213,22 +213,19 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [x] Definir catálogo de sete intenções, perguntas de exemplo, fontes, parâmetros e limites de resposta ([documento](docs/catalogo_intencoes_ia_analista.md)).
 - [x] Criar camada determinística em Python para as sete intenções, calculando métricas fora do LLM (`ia_analista/analytics.py`).
 - [x] Padronizar resultados estruturados com status, intenção, métrica, período, fatos, cobertura e limitações.
-- [x] Criar 28 testes automatizados para o motor e o roteador (`tests/test_analytics.py` e `tests/test_router.py`).
-- [x] Executar 29 testes do motor, roteador e sintaxe do `app.py` localmente.
-- [ ] Executar seis novos testes simulados da integração LLM (`tests/test_llm.py`), totalizando 35 testes.
+- [x] Criar 35 testes automatizados para motor, roteador, sintaxe do app e camada Gemini.
+- [x] Executar localmente 29 testes do motor, roteador e sintaxe do `app.py`.
+- [ ] Executar os seis novos testes simulados do LLM (`tests/test_llm.py`), sem consumir tokens.
 - [x] Criar roteador determinístico por regras explícitas e validação de parâmetros (`ia_analista/router.py`).
 - [x] Escolher Gemini Developer API e modelo `gemini-3.8-flash` para a primeira integração.
 - [x] Implementar a chamada opcional ao Gemini somente com a pergunta atual e o envelope determinístico, sem CSVs, histórico completo, ferramentas ou SQL.
-- [ ] Configurar a chave local e validar uma chamada real ao Gemini.
-- [x] Integrar uma primeira interface conversacional determinística ao Streamlit (página `IA Analista`).
+- [ ] Configurar a chave local e validar uma chamada real ao Gemini e o fallback sem chave/erro.
+- [x] Integrar a interface conversacional ao Streamlit (página `IA Analista`).
 - [x] Validar localmente as sete intenções do MVP e uma pergunta geográfica fora do escopo.
 - [ ] Validar manualmente casos de borda: pergunta ambígua/inválida, CSV ausente, cobertura parcial e limpeza da conversa.
 - [ ] Melhorar o texto do diagnóstico para destacar quando o acumulado é positivo apesar de quedas diárias.
-- [ ] Escolher e integrar o provedor de LLM para interpretação dos fatos estruturados.
-- [ ] Testar respostas, perguntas ambíguas, ausência de dados, cobertura temporal e perguntas fora do escopo.
-- [x] Documentar catálogo, motor determinístico, roteador e execução dos testes.
-- [x] Documentar integração do Gemini, fonte dos fatos, limitações, segurança e configuração.
-- [ ] Validar localmente a chamada real e o fallback quando a chave não estiver configurada.
+- [ ] Validar a interpretação generativa com perguntas válidas, ambiguidades, ausência de dados, cobertura parcial e fora de escopo.
+- [x] Documentar catálogo, motor determinístico, roteador, Gemini, segurança e configuração.
 
 ### Evoluções opcionais após o MVP
 
