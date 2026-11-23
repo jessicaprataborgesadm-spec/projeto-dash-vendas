@@ -135,6 +135,7 @@ def interpretar_resultado(
     if not api_key and client is None:
         return {"status": "not_configured"}
 
+    cliente_criado_aqui = client is None
     try:
         payload = _preparar_payload(pergunta, resultado, limitacoes_roteamento)
         prompt = (
@@ -183,3 +184,9 @@ def interpretar_resultado(
             "error_type": type(exc).__name__,
             "message": "Não foi possível gerar a interpretação com o LLM. Os resultados calculados continuam disponíveis.",
         }
+    finally:
+        if cliente_criado_aqui and client is not None:
+            try:
+                client.close()
+            except Exception:
+                pass
