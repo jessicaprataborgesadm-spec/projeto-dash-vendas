@@ -4,16 +4,17 @@ Memória de continuidade e fonte de referência do Projeto Dash Vendas. Atualiza
 
 ## 1. Objetivo e escopo da versão de portfólio
 
-Construir uma solução de Dados + Machine Learning com dados públicos do e-commerce Olist para:
+Construir uma solução de Dados + IA com dados públicos do e-commerce Olist para:
 - transformar dados transacionais em uma série diária analítica;
 - investigar qualidade, cobertura e comportamento temporal;
 - comparar um baseline com Random Forest;
 - produzir uma simulação retrospectiva de previsão diária por 30 dias;
-- apresentar histórico, validação e previsão em um dashboard Streamlit local.
+- apresentar histórico, validação e previsão em um dashboard Streamlit local;
+- implementar uma IA Analista conversacional que responda perguntas de negócio usando fatos calculados de forma determinística.
 
-**Escopo da V1 considerado concluído:** base analítica, features, baseline, Random Forest, backtests, previsão simulada, dashboard local, documentação e reprodução em clone limpo.
+**Status atual:** a fundação analítica e preditiva está concluída e validada; o dashboard local está concluído. **O projeto completo ainda NÃO está concluído porque a IA Analista, parte central do objetivo, não foi implementada.**
 
-**Fora do escopo da V1:** IA Analista conversacional, inferência local/WebGPU, publicação/hospedagem do dashboard e conexão em tempo real do Streamlit com BigQuery. São evoluções futuras, não bloqueiam o encerramento da V1.
+**Próxima etapa obrigatória:** IA Analista conversacional integrada ao dashboard. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais e não bloqueiam a primeira entrega funcional da IA.
 
 ## 2. Fonte e definição da métrica
 
@@ -43,7 +44,7 @@ Olist / Kaggle
     -> Streamlit local
 ```
 
-O dashboard lê seis CSVs locais e não consulta BigQuery diretamente. A camada Streamlit está em `dash_vendas_python_streamlit_publicacao/`. O dashboard não está hospedado.
+O dashboard lê seis CSVs locais e não consulta BigQuery diretamente. A camada Streamlit está em `dash_vendas_python_streamlit_publicacao/`. O dashboard não está hospedado. A camada de IA ainda não existe; será adicionada ao dashboard sem enviar a base inteira ao LLM.
 
 ## 4. SQL e dados
 
@@ -168,8 +169,55 @@ Comando Windows, a partir da pasta `dash_vendas_python_streamlit_publicacao`:
 - Usar dados públicos/autorizados; não incluir dados corporativos confidenciais.
 - Ao retomar, consultar este arquivo e o README antes de qualquer alteração.
 
-## 10. Encerramento da V1
+## 10. IA Analista: objetivo central ainda pendente
 
-A V1 de portfólio está concluída em seu escopo atual: pipeline analítico documentado, experimentos reproduzidos, limitações registradas, dashboard local revisado visualmente, dependências e instruções documentadas.
+A IA Analista faz parte do objetivo principal do Projeto Dash Vendas. Não deve ser tratada como simples melhoria opcional.
 
-IA Analista, inferência local/WebGPU, implantação e atualização com dados atuais ficam como possíveis projetos/fases futuras, não como pendências obrigatórias para encerrar esta versão.
+### Fluxo arquitetural desejado
+
+```text
+Pergunta do usuário
+    -> identificação/roteamento da intenção
+    -> função analítica determinística (SQL/BigQuery ou Python)
+    -> validação e estruturação dos fatos
+    -> envio somente dos resultados relevantes ao LLM
+    -> interpretação e resposta em linguagem natural
+```
+
+Regras:
+- O LLM não calcula métricas por conta própria nem recebe automaticamente toda a base.
+- Valores, comparações, agregações e indicadores devem ser calculados por SQL/Python de forma reproduzível.
+- Entregar ao LLM somente fatos estruturados necessários à pergunta, incluindo período, filtros, definições e limitações.
+- A resposta deve distinguir dado observado, inferência e hipótese.
+- Intenções desconhecidas, períodos sem cobertura ou perguntas sem dados suficientes devem receber respostas explícitas, sem inventar números.
+
+### MVP inicial recomendado, usando primeiro os artefatos existentes
+
+Perguntas candidatas que a base diária e os CSVs atuais podem sustentar:
+1. Como o valor diário evoluiu no período?
+2. Como o período selecionado se compara à referência do ano anterior, onde houver cobertura?
+3. Quais dias da semana apresentam maiores e menores valores médios?
+4. O que o calendário/feriados mostra sobre o comportamento observado?
+5. Qual é a previsão simulada de 30 dias e como ela se compara ao baseline?
+6. Como o Random Forest se saiu nos testes e nas cinco janelas temporais?
+
+O MVP não deve prometer análise por estado: a base diária atual tem uma linha por dia e não contém dimensão geográfica. Para responder "qual estado contribuiu mais", será necessário carregar/auditar as tabelas de clientes/localização e criar agregações com JOINs e cardinalidades validados.
+
+### Etapas de implementação da IA
+
+1. Fechar o catálogo de intenções e os exemplos de perguntas suportadas.
+2. Implementar funções determinísticas que consultem os CSVs atuais e/ou consultas SQL aprovadas, retornando fatos estruturados.
+3. Implementar roteamento de intenção e validação de entidades/períodos; nenhuma SQL gerada livremente pelo LLM deve ser executada sem validação.
+4. Escolher o provedor/modelo (Gemini/Vertex AI são possibilidades já consideradas, mas a decisão ainda está aberta) e configurar credenciais fora do Git.
+5. Conectar o LLM apenas à interpretação dos fatos estruturados.
+6. Integrar a experiência conversacional ao Streamlit.
+7. Testar perguntas respondíveis, perguntas sem dados, ambiguidades, períodos sem cobertura e respostas fora de escopo; verificar que números coincidem com SQL/Python.
+8. Documentar arquitetura, segurança, custos/limites e exemplos no README.
+
+**Critério de conclusão do projeto:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
+
+## 11. Encerramento e expansões opcionais
+
+A fundação analítica/preditiva e o dashboard estão concluídos. O **Projeto Dash Vendas como solução Dados + IA permanece em andamento até a entrega e validação da IA Analista**.
+
+Depois da IA funcional, podem ser avaliadas como expansões opcionais: publicar/hospedar o dashboard, conexão operacional/atualização de dados no BigQuery e inferência local/WebGPU. Essas expansões não são pré-requisitos para concluir o MVP da IA Analista.
