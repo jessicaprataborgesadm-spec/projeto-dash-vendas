@@ -44,6 +44,21 @@ A referência anual tem cobertura parcial. Na exportação atual, `faturamento_a
 
 ## 3. Intenções do MVP
 
+IDs técnicos usados no motor determinístico (`ia_analista/analytics.py`):
+
+| ID funcional | Intenção | Função |
+|---|---|---|
+| `period_evolution` | INT-01 · Evolução do indicador | `analisar_evolucao` |
+| `period_comparison` | INT-02 · Comparação entre períodos | `comparar_periodos` |
+| `weekday_pattern` | INT-03 · Padrão por dia da semana | `analisar_dia_semana` |
+| `calendar_analysis` | INT-04 · Calendário e feriados | `analisar_calendario` |
+| `change_diagnosis` | INT-05 · Diagnóstico de queda/aumento | `diagnosticar_variacao` |
+| `forecast_summary` | INT-06 · Consulta da previsão | `consultar_previsao_30_dias` |
+| `model_performance` | INT-07 · Desempenho dos modelos | `avaliar_modelos` |
+
+`executar_intencao` recebe esses identificadores explícitos. Ele ainda não interpreta texto livre; o roteador de linguagem natural será implementado na etapa seguinte.
+
+
 ### INT-01 — Evolução do indicador
 
 **Perguntas de exemplo**
