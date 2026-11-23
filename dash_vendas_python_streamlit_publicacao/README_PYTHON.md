@@ -63,7 +63,7 @@ O roteador está em `ia_analista/router.py`. A primeira versão usa padrões exp
 - encaminhar perguntas sem dimensão disponível para `out_of_scope`;
 - chamar o motor analítico por meio de `executar_pergunta` somente quando a rota estiver pronta.
 
-Status de roteamento: `ready`, `ambiguous`, `invalid` e `out_of_scope`. Essa versão é baseada em regras e não compreende todas as variações de linguagem. O roteador já é chamado pela página `IA Analista` no Streamlit, validada manualmente nas sete intenções e em uma pergunta fora do escopo. Ainda não há LLM conectado.
+Status de roteamento: `ready`, `ambiguous`, `invalid` e `out_of_scope`. Essa versão é baseada em regras e não compreende todas as variações de linguagem. O roteador já é chamado pela página `IA Analista` no Streamlit, validada manualmente nas sete intenções e em uma pergunta fora do escopo. A interpretação opcional por Gemini está implementada no módulo `ia_analista/llm.py`, mas ainda depende da chave local e da validação da chamada real.
 
 ## Motor determinístico da IA Analista
 
@@ -111,6 +111,26 @@ Os testes usam a biblioteca padrão `unittest`; não exigem instalar pytest. A b
 
 A página **IA Analista** foi adicionada ao menu do `app.py`. Ela usa `st.chat_input` e `st.chat_message`, mantendo o histórico em `st.session_state` durante a sessão atual. O botão **Limpar** apaga a conversa da sessão.
 
+## Integração Gemini
+
+A camada opcional de interpretação está em `ia_analista/llm.py`, usando `google-genai` e o modelo `gemini-3.8-flash`. O Python continua calculando os números. O Gemini recebe apenas a pergunta atual e os fatos estruturados do motor; não recebe os CSVs, DataFrames, histórico completo, nem ferramentas ou SQL. O retorno precisa seguir um esquema JSON e qualquer narrativa com algarismos é recusada para evitar reescrita de métricas.
+
+### Configurar a chave local
+
+A partir desta pasta, crie `.streamlit/secrets.toml` e preencha:
+
+```toml
+GEMINI_API_KEY = "SUA_CHAVE"
+GEMINI_MODEL = "gemini-3.8-flash"
+```
+
+A chave também pode ser fornecida pela variável de ambiente `GEMINI_API_KEY`. O arquivo `.streamlit/secrets.toml` já está ignorado pelo Git. **Não coloque a chave em arquivos versionados, capturas de tela ou mensagens de chat.**
+
+Crie a chave em [Google AI Studio](https://aistudio.google.com/api-keys). A camada gratuita pode usar o conteúdo para melhorar os produtos do Google; na camada paga, o conteúdo não é usado para essa finalidade. A camada paga exige configurar faturamento. Consulte os [preços oficiais](https://ai.google.dev/gemini-api/docs/pricing) antes de habilitar cobrança.
+
+Sem chave ou quando a API falhar, o dashboard continua exibindo os resultados determinísticos do Python.
+
+
 As cinco fontes analíticas são carregadas somente ao abrir essa página, por meio de `carregar_fontes()` com cache do Streamlit. As demais páginas continuam usando o carregamento de CSVs que já existia.
 
 Nesta etapa, a resposta é determinística e formatada por intenção. Não existe chamada a LLM, e a interface informa essa limitação. Perguntas sem período, ambíguas, inválidas ou fora do escopo exibem o esclarecimento retornado pelo roteador.
@@ -134,4 +154,4 @@ Depois inicie o dashboard:
 python -m streamlit run app.py
 ```
 
-A suíte anterior de 28 testes do motor e do roteador já passou localmente. O teste sintático novo e a validação manual da interface ainda precisam ser executados no ambiente local.
+A suíte de 29 testes do motor, roteador e sintaxe do `app.py` já passou localmente. Foram adicionados seis testes simulados para a camada Gemini em `tests/test_llm.py`; execute a suíte completa de 35 testes antes de validar a chamada real. Os testes simulados não exigem chave nem consomem tokens.
