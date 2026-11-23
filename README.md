@@ -211,13 +211,13 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [x] Definir catálogo de sete intenções, perguntas de exemplo, fontes, parâmetros e limites de resposta ([documento](docs/catalogo_intencoes_ia_analista.md)).
 - [x] Criar camada determinística em Python para as sete intenções, calculando métricas fora do LLM (`ia_analista/analytics.py`).
 - [x] Padronizar resultados estruturados com status, intenção, métrica, período, fatos, cobertura e limitações.
-- [x] Criar bateria automatizada de testes das funções analíticas (`tests/test_analytics.py`).
-- [ ] Criar roteamento de linguagem natural para as intenções e validação explícita de parâmetros.
+- [x] Criar 28 testes automatizados para o motor e o roteador (`tests/test_analytics.py` e `tests/test_router.py`).
+- [x] Criar roteador determinístico por regras explícitas e validação de parâmetros (`ia_analista/router.py`).
 - [ ] Escolher e integrar o provedor de LLM; Gemini/Vertex AI são candidatos, não decisão tomada.
 - [ ] Conectar o LLM somente aos fatos estruturados, sem enviar automaticamente toda a base.
 - [ ] Integrar a interface conversacional ao Streamlit.
 - [ ] Testar respostas, perguntas ambíguas, ausência de dados, cobertura temporal e perguntas fora do escopo.
-- [x] Documentar o catálogo, motor determinístico e execução dos testes.
+- [x] Documentar catálogo, motor determinístico, roteador e execução dos testes.
 - [ ] Documentar a integração do LLM, fontes, limitações, segurança e configuração.
 
 ### Evoluções opcionais após o MVP
