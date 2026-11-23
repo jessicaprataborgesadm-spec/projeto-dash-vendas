@@ -4,7 +4,7 @@ Projeto de portfólio em **Análise de Dados, Engenharia Analítica e Machine Le
 
 O objetivo é transformar dados transacionais em uma base analítica diária, investigar padrões de vendas e avaliar abordagens para previsão de faturamento, documentando decisões, limitações e resultados.
 
-> **Status:** pipeline analítico e experimentos preditivos desenvolvidos; scripts Python, dashboard Streamlit, dependências e sete CSVs agregados publicados no repositório, dentro de `dash_vendas_python_streamlit_publicacao/`. O dashboard ainda não está hospedado nem conectado diretamente ao BigQuery.
+> **Status:** fundação analítica/preditiva e dashboard local concluídos. **A IA Analista conversacional é a próxima etapa obrigatória e o principal componente ainda não implementado**. O dashboard não está hospedado nem conectado diretamente ao BigQuery.
 
 ## Problema de negócio
 
@@ -64,7 +64,7 @@ Arquivos de resultados (CSV)
 Dashboard Streamlit local
           |
           v
-IA Analista (planejada; não implementada)
+IA Analista (próxima etapa principal; ainda não implementada)
 ```
 
 O fluxo Python e o dashboard utilizam arquivos CSV exportados. Os scripts, a aplicação e os seis CSVs necessários ao dashboard estão versionados em `dash_vendas_python_streamlit_publicacao/`. A aplicação não está hospedada e não consulta o BigQuery em tempo real.
@@ -190,24 +190,42 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - O corte em 20/08/2018 é provisório.
 - A validação temporal contém poucas janelas e o Random Forest não venceu todas.
 - A análise da Black Friday foi feita sobre a base diária agregada; não foi concluída a decomposição dos pedidos individuais diretamente nas tabelas RAW.
-- A IA Analista com Gemini/Vertex AI é uma possibilidade planejada e ainda não foi implementada.
+- A IA Analista é parte central do objetivo do projeto e ainda não foi implementada. Gemini/Vertex AI são possibilidades de provedor, mas a escolha ainda está pendente.
 
-## Próximas etapas
+## Roadmap do Projeto Dash Vendas
+
+### Fundação analítica e preditiva
 
 - [x] Carregar e auditar as tabelas iniciais de pedidos e itens no BigQuery.
 - [x] Construir a base diária e as features temporais.
 - [x] Executar e avaliar um baseline.
 - [x] Treinar e avaliar o primeiro Random Forest.
 - [x] Realizar validação temporal em cinco janelas.
-- [x] Gerar uma previsão retrospectiva simulada de 30 dias.
+- [x] Gerar e validar a previsão simulada de 30 dias.
 - [x] Construir e revisar visualmente o dashboard Streamlit local.
-- [x] Concluir a revisão diagnóstica de qualidade e estabilidade do modelo e do corte temporal, com limitações registradas (cinco janelas, diagnóstico recente e sensibilidade do corte).
-- [x] Revisar e versionar os scripts Python, a aplicação Streamlit e os seis CSVs agregados.
-- [x] Documentar as dependências e as instruções de execução em `dash_vendas_python_streamlit_publicacao/README_PYTHON.md`.
-- [x] Validar a instalação e a execução a partir de um clone limpo do repositório.
-- [x] Reproduzir o script 24 e validar estruturalmente o CSV da previsão com corte em 20/08/2018.
-- [x] Conferir visualmente o dashboard atualizado com a nova previsão.
-- [ ] (Fase futura, fora do escopo da V1) Implementar a IA Analista depois da validação da camada analítica.
+- [x] Documentar dependências, instruções de execução e limitações.
+- [x] Validar instalação e execução a partir de um clone limpo.
+
+### Próxima etapa principal: IA Analista
+
+- [ ] Definir catálogo de intenções e perguntas de negócio do MVP.
+- [ ] Criar camada determinística de análise em Python/SQL, com métricas calculadas fora do LLM.
+- [ ] Padronizar resultados estruturados (valores, período, filtros, definição da métrica e limitações).
+- [ ] Criar roteamento de intenção e validação de parâmetros.
+- [ ] Escolher e integrar o provedor de LLM; Gemini/Vertex AI são candidatos, não decisão tomada.
+- [ ] Conectar o LLM somente aos fatos estruturados, sem enviar automaticamente toda a base.
+- [ ] Integrar a interface conversacional ao Streamlit.
+- [ ] Testar respostas, perguntas ambíguas, ausência de dados, cobertura temporal e perguntas fora do escopo.
+- [ ] Documentar a IA, suas fontes, limitações, segurança e instruções de configuração.
+
+### Evoluções opcionais após o MVP
+
+- [ ] Adicionar análises por estado/região após carregar e auditar as dimensões necessárias (a base diária atual não contém localização).
+- [ ] Conectar o dashboard a dados atualizados do BigQuery.
+- [ ] Hospedar/publicar o dashboard.
+- [ ] Avaliar inferência local/WebGPU.
+
+**Critério de conclusão do projeto:** a IA Analista responde às perguntas do MVP dentro do dashboard, usando cálculos reproduzíveis e resultados estruturados, sem inventar valores nem receber toda a base indiscriminadamente.
 
 ## Memória de continuidade
 
