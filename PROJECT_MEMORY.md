@@ -321,9 +321,11 @@ A execução anterior já havia retornado o mesmo código e mensagem. Portanto:
 - o painel do AI Studio anteriormente mostrou o nível gratuito e uso abaixo dos limites exibidos;
 - a integração Gemini permanece implementada no código, mas **não pode ser descrita como validada em produção nem como funcionando em chamada real**.
 
-### Decisão da usuária
+### Decisão registrada inicialmente e atualização posterior
 
-- Encerrar as tentativas de conexão com Gemini nesta versão.
+A decisão inicial após as duas respostas 503 foi encerrar as tentativas. Em uma conversa posterior, a usuária reconsiderou essa decisão e autorizou **uma única tentativa adicional**, trocando o modelo pelo arquivo local de configuração. A autorização posterior prevalece somente para essa tentativa controlada; caso falhe, não haverá nova chamada.
+
+- Não realizar chamadas repetidas nem tentar novamente o `gemini-3.8-flash`.
 - Não fazer outras chamadas de teste.
 - Não configurar faturamento, não adicionar cartão e não realizar upgrade.
 - Preservar a interface conversacional, o roteador e o motor analítico determinístico, que continuam sendo a via funcional do dashboard.
