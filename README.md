@@ -4,7 +4,7 @@ Projeto de portfólio em **Análise de Dados, Engenharia Analítica e Machine Le
 
 O objetivo é transformar dados transacionais em uma base analítica diária, investigar padrões de vendas e avaliar abordagens para previsão de faturamento, documentando decisões, limitações e resultados.
 
-> **Status:** fundação analítica/preditiva e dashboard local concluídos. A interface da IA Analista foi validada e a integração opcional com Gemini foi implementada. Falta configurar a chave local e validar chamadas reais ao modelo, além dos casos de borda. O dashboard não está hospedado nem conectado diretamente ao BigQuery.
+> **Status desta versão:** fundação analítica/preditiva e dashboard local concluídos. A IA Analista determinística (roteamento por regras, cálculos em Python e interface conversacional) foi validada nas sete intenções do MVP e em uma pergunta fora do escopo. A integração com Gemini foi implementada, mas duas tentativas reais retornaram `503 UNAVAILABLE`, com mensagem do provedor sobre alta demanda. Não foi obtida resposta generativa e, por decisão do projeto, não haverá novas tentativas nem configuração de faturamento. A execução dos seis testes simulados do LLM, a suíte completa e alguns casos de borda ainda precisam ser revisados. O dashboard é local, não está hospedado e não consulta o BigQuery em tempo real.
 
 ## Problema de negócio
 
@@ -68,10 +68,8 @@ IA Analista
   |-- roteador determinístico
   |-- motor analítico Python
   |-- interface conversacional local
-  |-- Gemini Developer API (interpretação opcional dos fatos)
-  |
-  v
-Gemini 3.8 Flash (quando a chave local estiver configurada)
+  |-- Gemini Developer API (camada opcional implementada no código)
+         `-- chamada real não validada: duas respostas 503 UNAVAILABLE por alta demanda
 ```
 
 O fluxo Python e o dashboard utilizam arquivos CSV exportados. Os scripts, a aplicação e os seis CSVs necessários ao dashboard estão versionados em `dash_vendas_python_streamlit_publicacao/`. A aplicação não está hospedada e não consulta o BigQuery em tempo real.
@@ -155,7 +153,7 @@ Foi comparada a média dos sete dias encerrados em cada data de corte com a méd
 
 ## Dashboard
 
-Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação lateral e seis áreas: Visão geral, Histórico, Modelos, Validação temporal, Previsão de 30 dias e IA Analista. A página IA Analista mantém os cálculos determinísticos e pode usar Gemini 3.8 Flash para interpretar os resultados estruturados quando a chave local estiver configurada.
+Foi desenvolvido localmente um dashboard em **Streamlit**, com navegação lateral e seis áreas: Visão geral, Histórico, Modelos, Validação temporal, Previsão de 30 dias e IA Analista. A página IA Analista usa roteamento por regras e cálculos determinísticos em Python. A camada opcional de interpretação com Gemini foi implementada, mas duas chamadas reais de teste retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor; portanto, a interpretação generativa não foi validada e não é apresentada como funcional nesta versão.
 
 As telas foram revisadas visualmente e os principais indicadores foram comparados com os resultados dos experimentos. O código e os CSVs usados pelo dashboard estão publicados em `dash_vendas_python_streamlit_publicacao/`. As instruções de instalação e execução estão em [README_PYTHON.md](dash_vendas_python_streamlit_publicacao/README_PYTHON.md). A instalação das dependências e a execução do dashboard foram validadas a partir de um clone limpo do repositório, usando Python 3.14.2.
 
@@ -191,8 +189,9 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - O corte em 20/08/2018 é provisório.
 - A validação temporal contém poucas janelas e o Random Forest não venceu todas.
 - A análise da Black Friday foi feita sobre a base diária agregada; não foi concluída a decomposição dos pedidos individuais diretamente nas tabelas RAW.
-- A interface da IA Analista usa roteamento por regras e cálculos determinísticos. A integração opcional com Gemini Developer API (`gemini-3.8-flash`) está implementada, mas a chave local e a chamada real ainda precisam ser validadas.
-- A interface conversacional foi publicada e validada localmente nas sete intenções do MVP e em uma pergunta fora do escopo. A validação de casos de borda e a integração de um LLM continuam pendentes.
+- A IA Analista determinística usa roteamento por regras e cálculos em Python. A interface conversacional foi validada nas sete intenções do MVP e em uma pergunta fora do escopo.
+- A integração opcional com Gemini Developer API (`gemini-3.8-flash`) está implementada no código, mas duas tentativas reais retornaram `503 UNAVAILABLE` com mensagem de alta demanda do provedor. Nenhuma resposta generativa foi obtida; por decisão do projeto, não haverá novas tentativas nem ativação de billing nesta versão.
+- Permanecem pendentes a execução dos seis testes simulados do LLM, a suíte completa de testes, alguns casos de borda da interface e o ajuste textual do diagnóstico para distinguir o acumulado das quedas diárias.
 
 ## Roadmap do Projeto Dash Vendas
 
@@ -219,12 +218,12 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [x] Criar roteador determinístico por regras explícitas e validação de parâmetros (`ia_analista/router.py`).
 - [x] Escolher Gemini Developer API e modelo `gemini-3.8-flash` para a primeira integração.
 - [x] Implementar a chamada opcional ao Gemini somente com a pergunta atual e o envelope determinístico, sem CSVs, histórico completo, ferramentas ou SQL.
-- [ ] Configurar a chave local no nível gratuito, sem billing, e validar uma chamada real ao Gemini e o fallback sem chave/erro.
+- [x] Configurar a chave local no nível gratuito, sem billing, e realizar duas tentativas reais de chamada ao Gemini. Ambas retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor; nenhuma resposta generativa foi obtida. Por decisão da usuária, não serão feitas novas tentativas nem ativado billing.
 - [x] Integrar a interface conversacional ao Streamlit (página `IA Analista`).
 - [x] Validar localmente as sete intenções do MVP e uma pergunta geográfica fora do escopo.
 - [ ] Validar manualmente casos de borda: pergunta ambígua/inválida, CSV ausente, cobertura parcial e limpeza da conversa.
 - [ ] Melhorar o texto do diagnóstico para destacar quando o acumulado é positivo apesar de quedas diárias.
-- [ ] Validar a interpretação generativa com perguntas válidas, ambiguidades, ausência de dados, cobertura parcial e fora de escopo.
+- [x] Registrar que a interpretação generativa não foi validada: as duas chamadas reais retornaram `503 UNAVAILABLE`; a camada Gemini permanece opcional e não operacionalmente confirmada nesta versão.
 - [x] Documentar catálogo, motor determinístico, roteador, Gemini, segurança e configuração.
 
 ### Evoluções opcionais após o MVP
@@ -234,7 +233,7 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [ ] Hospedar/publicar o dashboard.
 - [ ] Avaliar inferência local/WebGPU.
 
-**Critério de conclusão do projeto:** a IA Analista responde às perguntas do MVP dentro do dashboard, usando cálculos reproduzíveis e resultados estruturados, sem inventar valores nem receber toda a base indiscriminadamente.
+**Escopo entregue nesta versão:** dashboard local com IA Analista determinística, roteamento por regras, cálculos reproduzíveis e apresentação dos fatos estruturados. A integração Gemini está presente no código, mas não foi validada por indisponibilidade reportada pelo provedor e não faz parte das capacidades confirmadas desta entrega.
 
 ## Memória de continuidade
 
@@ -277,4 +276,4 @@ Preços publicados para `gemini-3.8-flash` no nível Standard: US$ 0,75 por milh
 
 Links oficiais: [Google AI Studio / chaves de API](https://aistudio.google.com/api-keys) · [SDK Google Gen AI para Python](https://googleapis.github.io/python-genai/) · [preços da Gemini API](https://ai.google.dev/gemini-api/docs/pricing).
 
-A integração está implementada, mas a chamada real ainda depende de chave local no nível gratuito. Não habilitar billing nem associar cartão. Se a chave estiver ausente, a conta exigir faturamento ou o serviço falhar, o dashboard mantém os cartões e resultados determinísticos sem interromper a resposta.
+A chave foi configurada localmente e protegida pelo `.gitignore`. Em 24/11/2026, foram feitas duas tentativas manuais de chamada real ao modelo `gemini-3.8-flash`; ambas retornaram `503 UNAVAILABLE` com a mensagem do provedor de que o modelo estava enfrentando alta demanda. O painel do AI Studio mostrou o projeto no nível gratuito e uso abaixo dos limites exibidos naquele momento. Não foi obtida resposta do modelo, portanto a integração remota não está validada. Por decisão da usuária, não haverá novas tentativas, ativação de billing, associação de cartão ou upgrade nesta versão. Quando o Gemini está indisponível, a interface continua exibindo os fatos e indicadores calculados deterministicamente pelo Python.
