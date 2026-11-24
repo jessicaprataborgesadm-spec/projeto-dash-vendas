@@ -67,7 +67,7 @@ Status de roteamento: `ready`, `ambiguous`, `invalid` e `out_of_scope`. Essa ver
 
 ## Motor determinístico da IA Analista
 
-O módulo está em `ia_analista/analytics.py`. Ele calcula os fatos das sete intenções cadastradas no catálogo, usando os CSVs existentes. A página `IA Analista` carrega essas fontes sob demanda e usa `ia_analista/router.py` para encaminhar perguntas. As respostas são apresentadas por templates determinísticos; não há LLM conectado.
+O módulo está em `ia_analista/analytics.py`. Ele calcula os fatos das sete intenções cadastradas no catálogo, usando os CSVs existentes. A página `IA Analista` carrega essas fontes sob demanda e usa `ia_analista/router.py` para encaminhar perguntas. Os indicadores e cálculos são sempre determinísticos. Uma camada Gemini opcional pode acrescentar interpretação em linguagem natural quando a chamada externa está disponível; se ela falhar, os resultados calculados pelo Python continuam sendo exibidos.
 
 Funções disponíveis:
 - `analisar_evolucao`: total, média, mediana e extremos do período;
@@ -113,27 +113,41 @@ A página **IA Analista** foi adicionada ao menu do `app.py`. Ela usa `st.chat_i
 
 ## Integração Gemini
 
-A camada opcional de interpretação está em `ia_analista/llm.py`, usando `google-genai` e o modelo `gemini-3.8-flash`. O Python continua calculando os números. O Gemini recebe apenas a pergunta atual e os fatos estruturados do motor; não recebe os CSVs, DataFrames, histórico completo, nem ferramentas ou SQL. O retorno precisa seguir um esquema JSON e qualquer narrativa com algarismos é recusada para evitar reescrita de métricas.
+A camada opcional de interpretação está em `ia_analista/llm.py`, usando o SDK `google-genai`. O Python continua calculando os números. O modelo recebe apenas a pergunta atual e os fatos estruturados do motor; não recebe os CSVs, DataFrames, histórico completo, ferramentas ou SQL. A resposta esperada segue um esquema JSON, e narrativas com algarismos são recusadas para evitar reescrita de métricas.
 
-### Configurar a chave local
+### Configurar e trocar o modelo pelo Bloco de Notas (Windows)
 
-A partir desta pasta, crie `.streamlit/secrets.toml` e preencha:
+A chave e o nome do modelo ficam em `.streamlit/secrets.toml`, dentro desta pasta. Abra o CMD ou terminal nesta pasta e execute:
+
+```cmd
+if not exist .streamlit mkdir .streamlit
+notepad .streamlit\secrets.toml
+```
+
+No Bloco de Notas, mantenha a chave privada e configure o nome do modelo:
 
 ```toml
 GEMINI_API_KEY = "SUA_CHAVE"
-GEMINI_MODEL = "gemini-3.8-flash"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 ```
 
 A chave também pode ser fornecida pela variável de ambiente `GEMINI_API_KEY`. O arquivo `.streamlit/secrets.toml` já está ignorado pelo Git. **Não coloque a chave em arquivos versionados, capturas de tela ou mensagens de chat.**
 
-Crie a chave em [Google AI Studio](https://aistudio.google.com/api-keys) usando exclusivamente o nível gratuito. A tabela oficial lista entrada e saída de tokens sem custo para `gemini-3.8-flash`, sujeito aos limites de uso e à disponibilidade da conta. **Não habilite billing, não associe cartão e não faça upgrade.** O Google informa que o conteúdo do nível gratuito pode ser usado para melhorar seus produtos. Por isso, esta aplicação só envia a pergunta atual e fatos agregados da base pública Olist. Não envie dados pessoais, confidenciais, chaves ou credenciais. Se a página exigir faturamento ou indicar cobrança, pare e use o modo determinístico, que continua funcionando sem LLM.
+**Para trocar de modelo futuramente:** abra novamente o arquivo com `notepad .streamlit\secrets.toml`, altere somente o texto à direita de `GEMINI_MODEL =`, salve com `Ctrl + S` e reinicie o Streamlit. Não é necessário editar `app.py` nem `ia_analista/llm.py`: `app.py` lê a configuração e a encaminha ao módulo LLM. Use somente IDs publicados na documentação oficial e confirme se o modelo está disponível no nível gratuito da sua conta.
 
-Sem chave ou quando a API falhar, o dashboard continua exibindo os resultados determinísticos do Python.
+### Modelo da tentativa atual
 
+As duas chamadas reais anteriores com `gemini-3.8-flash` retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor. Foi selecionado `gemini-3.5-flash-lite` como alternativa para uma única tentativa adicional controlada. A tabela oficial do Google lista esse modelo com entrada e saída sem custo no nível gratuito, sujeito à disponibilidade e aos limites da conta: [preços oficiais](https://ai.google.dev/gemini-api/docs/pricing). Isso não garante disponibilidade nem sucesso da requisição.
 
-As cinco fontes analíticas são carregadas somente ao abrir essa página, por meio de `carregar_fontes()` com cache do Streamlit. As demais páginas continuam usando o carregamento de CSVs que já existia.
+**Custo zero é uma condição do projeto:** não habilitar billing, não adicionar cartão e não fazer upgrade. Se o Google solicitar faturamento ou indicar cobrança, interrompa. Se a chamada com o modelo alternativo falhar, não repetir nesta versão; manter os resultados determinísticos.
 
-Nesta etapa, a resposta é determinística e formatada por intenção. Não existe chamada a LLM, e a interface informa essa limitação. Perguntas sem período, ambíguas, inválidas ou fora do escopo exibem o esclarecimento retornado pelo roteador.
+O Google informa que o conteúdo enviado pelo nível gratuito pode ser usado para melhorar seus produtos. Por isso, a aplicação só envia a pergunta atual e fatos agregados da base pública Olist. Não envie dados pessoais, confidenciais, chaves ou credenciais.
+
+Links: [Google AI Studio](https://aistudio.google.com/api-keys) · [modelos disponíveis](https://ai.google.dev/gemini-api/docs/models) · [preços da API](https://ai.google.dev/gemini-api/docs/pricing).
+
+As cinco fontes analíticas são carregadas somente ao abrir a página IA Analista, por meio de `carregar_fontes()` com cache do Streamlit. Sem chave ou quando a API falha, o dashboard mantém os indicadores e respostas determinísticas do Python. A interpretação generativa não foi validada nas duas chamadas anteriores com `gemini-3.8-flash`; a única tentativa com o modelo alternativo ainda está pendente.
+
+Perguntas sem período, ambíguas, inválidas ou fora do escopo recebem o esclarecimento retornado pelo roteador.
 
 ### Validar a aplicação e os testes
 
