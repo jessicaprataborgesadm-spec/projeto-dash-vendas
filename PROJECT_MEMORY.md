@@ -12,7 +12,7 @@ Construir uma solução de Dados + IA com dados públicos do e-commerce Olist pa
 - apresentar histórico, validação e previsão em um dashboard Streamlit local;
 - implementar uma IA Analista conversacional que responda perguntas de negócio usando fatos calculados de forma determinística.
 
-**Status atual:** a fundação analítica e preditiva está concluída e validada; o dashboard local está concluído. A IA Analista possui motor determinístico, roteador por regras, interface conversacional validada e integração opcional com Gemini publicada. A chave foi configurada localmente e a primeira chamada real chegou à API, mas retornou `503 UNAVAILABLE` por alta demanda temporária do modelo. **O projeto completo ainda NÃO está concluído:** falta obter uma resposta válida do LLM em nova tentativa, além de concluir os casos de borda e a melhoria de comunicação do diagnóstico.
+**Status atual:** a fundação analítica/preditiva e o dashboard local estão concluídos. A IA Analista determinística (roteador por regras, motor Python e interface conversacional) está implementada e foi validada nas sete intenções do MVP e em uma pergunta fora do escopo. A integração Gemini está implementada no código, mas duas tentativas reais retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor; nenhuma resposta generativa foi obtida. Por decisão da usuária, não haverá novas tentativas nem ativação de billing. Permanecem pendentes a execução dos seis testes simulados do LLM, a revisão da suíte completa, alguns casos de borda, a melhoria do diagnóstico e o fechamento documental do portfólio.
 
 **Decisão atual:** encerrar as tentativas de conexão remota com Gemini após duas respostas `503 UNAVAILABLE`; não realizar novas chamadas, não habilitar faturamento e não adicionar cartão. O encerramento do portfólio seguirá com a limitação documentada, a revisão/atualização do README no GitHub e a preparação de uma publicação de LinkedIn. Depois da conferência final desses materiais, migrar o foco para os outros projetos. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais.
 
@@ -169,9 +169,9 @@ Comando Windows, a partir da pasta `dash_vendas_python_streamlit_publicacao`:
 - Usar dados públicos/autorizados; não incluir dados corporativos confidenciais.
 - Ao retomar, consultar este arquivo e o README antes de qualquer alteração.
 
-## 10. IA Analista: objetivo central ainda pendente
+## 10. IA Analista: motor determinístico funcional e integração generativa não validada
 
-A IA Analista faz parte do objetivo principal do Projeto Dash Vendas. O projeto completo não está concluído até que essa camada esteja integrada e validada no dashboard.
+A camada determinística da IA Analista está integrada ao dashboard e validada nas sete intenções do MVP. A integração generativa com Gemini foi implementada, mas não foi validada por indisponibilidade reportada pelo provedor; por decisão da usuária, não haverá novas tentativas nesta versão. O escopo entregue deve ser descrito sem afirmar que a interpretação generativa está operacional.
 
 ### Catálogo de intenções
 
