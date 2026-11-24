@@ -12,9 +12,9 @@ Construir uma solução de Dados + IA com dados públicos do e-commerce Olist pa
 - apresentar histórico, validação e previsão em um dashboard Streamlit local;
 - implementar uma IA Analista conversacional que responda perguntas de negócio usando fatos calculados de forma determinística.
 
-**Status atual:** a fundação analítica/preditiva e o dashboard local estão concluídos. A IA Analista determinística (roteador por regras, motor Python e interface conversacional) está implementada e foi validada nas sete intenções do MVP e em uma pergunta fora do escopo. Duas chamadas reais com `gemini-3.8-flash` retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor. A usuária autorizou uma única tentativa adicional controlada com `gemini-3.5-flash-lite`, selecionado localmente no arquivo `.streamlit/secrets.toml`, sem alterar o código Python. Essa tentativa ainda está pendente. Não haverá billing, cartão, upgrade nem nova chamada caso essa tentativa falhe. Permanecem pendentes os seis testes simulados do LLM, a revisão da suíte completa, alguns casos de borda, a melhoria do diagnóstico e o fechamento documental do portfólio.
+**Status atual:** a fundação analítica/preditiva e o dashboard local estão concluídos. A IA Analista determinística (roteador por regras, motor Python e interface conversacional) foi validada nas sete intenções do MVP e em uma pergunta fora do escopo. Após duas respostas `503 UNAVAILABLE` de `gemini-3.8-flash`, a configuração local foi alterada pelo Bloco de Notas para `gemini-3.5-flash-lite`. Em 24/11/2026, a pergunta “Qual foi o faturamento de julho de 2018?” recebeu uma resposta generativa no dashboard; a captura mostrou a seção “Leitura do analista”, pontos-chave e a seção de cuidados, enquanto os cartões numéricos continuaram sendo exibidos pelo Python. Isso valida uma chamada ponta a ponta com o modelo alternativo, mas não valida todos os cenários nem substitui os testes automatizados. Permanecem pendentes os seis testes simulados do LLM, a revisão da suíte completa, alguns casos de borda, a melhoria do diagnóstico e o fechamento documental do portfólio.
 
-**Decisão atual:** após duas respostas `503 UNAVAILABLE` de `gemini-3.8-flash`, foi autorizada uma única tentativa final com o modelo alternativo `gemini-3.5-flash-lite`. A troca é feita pela configuração local `GEMINI_MODEL` em `.streamlit/secrets.toml`, editável pelo Bloco de Notas, sem alterar código Python. Não habilitar faturamento, não adicionar cartão e não fazer upgrade. Se a tentativa alternativa falhar, não realizar novas chamadas nesta versão; preservar a IA Analista determinística e seguir com as revisões do portfólio. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais.
+**Decisão atual:** a tentativa adicional autorizada com `gemini-3.5-flash-lite` foi bem-sucedida para uma pergunta de evolução mensal no dashboard. Não é necessário fazer outra chamada real agora. Manter o modelo configurável no arquivo local `GEMINI_MODEL` em `.streamlit/secrets.toml`, editável pelo Bloco de Notas, sem alterar código Python. Permanecem as regras de custo zero: não habilitar faturamento, não adicionar cartão e não fazer upgrade. Preservar a resposta determinística em Python como fonte dos números e o Gemini apenas como camada narrativa. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais.
 
 ## 2. Fonte e definição da métrica
 
@@ -263,7 +263,7 @@ Regras:
 8. [x] Implementar a integração opcional com Gemini e documentar arquitetura, segurança, custos/limites e configuração.
 9. [ ] Executar os seis novos testes simulados do LLM e validar localmente uma chamada real com chave própria; revisar o fallback sem chave. A primeira tentativa real foi feita em 24/11/2026 e retornou `503 UNAVAILABLE` (mensagem do provedor: modelo temporariamente com alta demanda); não houve resposta do modelo.
 
-**Próxima tarefa:** reabrir o dashboard e fazer uma única chamada controlada com `gemini-3.5-flash-lite`, selecionado em `.streamlit/secrets.toml`. Se falhar, não repetir. Em seguida, executar os seis testes simulados do LLM e a suíte completa; testar fallback sem chave/erro, limites de escopo e perguntas ambíguas; melhorar a comunicação do diagnóstico; revisar os READMEs no GitHub; preparar o post do LinkedIn e fazer a conferência final. Não habilitar billing, não adicionar cartão e não executar SQL livre gerada pelo modelo.
+**Próxima tarefa:** executar os seis testes simulados do LLM e a suíte completa; testar fallback sem chave/erro, limites de escopo e perguntas ambíguas; melhorar a comunicação do diagnóstico; revisar os READMEs no GitHub; preparar o post do LinkedIn e fazer a conferência final. A chamada real com `gemini-3.5-flash-lite` já respondeu uma pergunta no dashboard; não há necessidade de novas chamadas nesta etapa. Não habilitar billing, não adicionar cartão e não executar SQL livre gerada pelo modelo.
 
 **Critério de conclusão:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
 
@@ -301,48 +301,41 @@ Depois da IA funcional, podem ser avaliadas como expansões opcionais: publicar/
 Não iniciar os outros projetos como prioridade principal antes dessa revisão final, salvo solicitação expressa da usuária.
 
 
-## 13. Resultado final da tentativa Gemini e decisão de encerramento (24/11/2026)
+## 13. Histórico das tentativas reais e validação posterior (24/11/2026)
 
-### Segunda e última execução manual do teste
+### Duas primeiras chamadas com `gemini-3.8-flash`
 
-A usuária executou a segunda tentativa manual de validação real, conforme combinado como última tentativa. O traceback terminou em:
-
-`google.genai.errors.ServerError: 503 UNAVAILABLE`
-
-Mensagem retornada pelo provedor:
+As duas primeiras chamadas reais retornaram `google.genai.errors.ServerError: 503 UNAVAILABLE`, com a mensagem do provedor:
 
 `This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.`
 
-A execução anterior já havia retornado o mesmo código e mensagem. Portanto:
-- duas execuções manuais de teste foram feitas;
-- as duas falharam com 503 por alta demanda reportada pelo provedor;
-- nenhuma resposta textual do modelo foi obtida;
-- não há evidência nos logs apresentados de chave inválida ou de cota excedida;
-- o painel do AI Studio anteriormente mostrou o nível gratuito e uso abaixo dos limites exibidos;
-- a integração Gemini permanece implementada no código, mas **não pode ser descrita como validada em produção nem como funcionando em chamada real**.
+O painel do AI Studio mostrou o projeto no nível gratuito e uso abaixo dos limites exibidos naquele momento. Não havia evidência de chave inválida nem de cota excedida; o erro reportado foi indisponibilidade/alta demanda do modelo.
 
-### Decisão registrada inicialmente e atualização posterior
+### Tentativa autorizada com o modelo alternativo
 
-A decisão inicial após as duas respostas 503 foi encerrar as tentativas. Em uma conversa posterior, a usuária reconsiderou essa decisão e autorizou **uma única tentativa adicional**, trocando o modelo pelo arquivo local de configuração. A autorização posterior prevalece somente para essa tentativa controlada; caso falhe, não haverá nova chamada.
+Depois das duas falhas, a usuária autorizou uma única tentativa adicional usando `gemini-3.5-flash-lite`, alterando somente `GEMINI_MODEL` no arquivo local `.streamlit/secrets.toml` pelo Bloco de Notas. Não foi necessário alterar `app.py` nem `ia_analista/llm.py`.
 
-- Não realizar chamadas repetidas nem tentar novamente o `gemini-3.8-flash`.
-- Não fazer outras chamadas de teste.
-- Não configurar faturamento, não adicionar cartão e não realizar upgrade.
-- Preservar a interface conversacional, o roteador e o motor analítico determinístico, que continuam sendo a via funcional do dashboard.
-- Registrar Gemini como integração opcional implementada, porém não validada por indisponibilidade externa do modelo.
-- Encerrar o projeto de portfólio com a limitação explícita, após concluir a revisão documental e a apresentação pública.
+A chamada pelo dashboard foi bem-sucedida. Pergunta enviada:
 
-### Plano final acordado
+`Qual foi o faturamento de julho de 2018?`
 
-1. [ ] Executar os seis testes simulados do LLM e a suíte completa de testes, incluindo o fallback sem chamada real.
-2. [ ] Concluir os testes de borda relevantes e o ajuste de comunicação do diagnóstico (acumulado versus variações diárias).
-3. [ ] Revisar o README no GitHub, corrigindo o status desatualizado da chave e da validação Gemini, confirmando arquitetura, resultados, limitações e instruções.
-4. [ ] Criar o post do LinkedIn com descrição fiel: IA Analista determinística funcional; integração Gemini desenvolvida, mas não validada em chamadas reais devido a duas respostas 503 do provedor; sem billing e sem cartão.
-5. [ ] Fazer a conferência final e considerar o Dash Vendas encerrado nesta versão.
-6. [ ] Depois, migrar o foco para os demais projetos.
+A captura de tela enviada pela usuária mostrou:
+- seção **Leitura do analista** visível, com resumo em português;
+- três pontos-chave em linguagem natural;
+- seção recolhida **Cuidados destacados pelo Gemini**;
+- cartões determinísticos do Python preservados abaixo da narrativa (faturamento total, média, mediana, maior e menor valor diário e quantidade de dias).
 
-**Critério de comunicação pública:** nunca afirmar que a Gemini respondeu com sucesso, que a integração remota foi validada ou que a IA generativa está operacional. É correto dizer que a integração foi implementada e que sua validação real foi bloqueada pela indisponibilidade 503 do provedor. Não ocultar que a IA Analista mantém a camada determinística em funcionamento.
+A resposta narrativa não substituiu nem recalculou os indicadores. Os cartões continuaram sendo fornecidos pelo motor determinístico. Essa evidência valida uma chamada ponta a ponta com o modelo alternativo para uma pergunta do tipo `period_evolution`.
 
+**Limite desta validação:** foi validado um cenário real, não todas as sete intenções, os casos de borda nem a robustez da integração em diferentes sessões. Os seis testes simulados em `tests/test_llm.py` e a suíte completa ainda precisam ser executados.
+
+### Decisão após o sucesso
+
+- Manter `gemini-3.5-flash-lite` configurado localmente em `GEMINI_MODEL` dentro de `.streamlit/secrets.toml`.
+- Não fazer chamadas remotas adicionais agora; a tentativa autorizada já demonstrou resposta funcional.
+- Não habilitar faturamento, não adicionar cartão e não fazer upgrade.
+- Preservar os cálculos em Python como fonte de verdade dos números; o Gemini permanece uma camada interpretativa opcional.
+- Prosseguir com testes simulados, casos de borda, revisão dos READMEs e post de LinkedIn.
 
 ## 14. Configuração editável do modelo Gemini pelo Bloco de Notas (24/11/2026)
 
@@ -361,4 +354,4 @@ O nome do modelo da camada LLM deve permanecer configurável fora do código par
 
 A documentação oficial do Google lista o ID `gemini-3.5-flash-lite` e descreve o modelo como voltado a tarefas de alto volume e processamento simples. A página oficial de preços lista entrada e saída sem custo no nível gratuito, sujeitas à disponibilidade e aos limites de uso da conta. Isso não garante disponibilidade para esta conta nem sucesso da próxima chamada. Referências: [modelos](https://ai.google.dev/gemini-api/docs/models) e [preços](https://ai.google.dev/gemini-api/docs/pricing).
 
-As duas tentativas anteriores com `gemini-3.8-flash` retornaram `503 UNAVAILABLE` por alta demanda. A usuária autorizou uma única tentativa final com `gemini-3.5-flash-lite`. Caso falhe, não haverá nova chamada nesta versão. Não habilitar billing, não adicionar cartão e não fazer upgrade.
+As duas tentativas anteriores com `gemini-3.8-flash` retornaram `503 UNAVAILABLE` por alta demanda. A tentativa adicional única com `gemini-3.5-flash-lite` foi concluída com sucesso no dashboard em 24/11/2026, para a pergunta “Qual foi o faturamento de julho de 2018?”. Não há necessidade de novas chamadas de teste neste momento. Não habilitar billing, não adicionar cartão e não fazer upgrade.
