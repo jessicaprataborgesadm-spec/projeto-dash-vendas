@@ -1,6 +1,6 @@
 # PROJECT_MEMORY.md
 
-Memória de continuidade e fonte de referência do Projeto Dash Vendas. Atualizada em 23/11/2026.
+Memória de continuidade e fonte de referência do Projeto Dash Vendas. Atualizada em 24/11/2026.
 
 ## 1. Objetivo e escopo da versão de portfólio
 
@@ -12,9 +12,9 @@ Construir uma solução de Dados + IA com dados públicos do e-commerce Olist pa
 - apresentar histórico, validação e previsão em um dashboard Streamlit local;
 - implementar uma IA Analista conversacional que responda perguntas de negócio usando fatos calculados de forma determinística.
 
-**Status atual:** a fundação analítica e preditiva está concluída e validada; o dashboard local está concluído. A IA Analista possui motor determinístico, roteador por regras, interface conversacional validada e integração opcional com Gemini publicada. **O projeto completo ainda NÃO está concluído:** falta configurar a chave no ambiente local e validar uma chamada real ao LLM, além de concluir os casos de borda e a melhoria de comunicação do diagnóstico.
+**Status atual:** a fundação analítica e preditiva está concluída e validada; o dashboard local está concluído. A IA Analista possui motor determinístico, roteador por regras, interface conversacional validada e integração opcional com Gemini publicada. A chave foi configurada localmente e a primeira chamada real chegou à API, mas retornou `503 UNAVAILABLE` por alta demanda temporária do modelo. **O projeto completo ainda NÃO está concluído:** falta obter uma resposta válida do LLM em nova tentativa, além de concluir os casos de borda e a melhoria de comunicação do diagnóstico.
 
-**Próxima etapa obrigatória:** configurar localmente a chave da Gemini Developer API e validar a interpretação real dos fatos estruturados. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais e não bloqueiam a primeira entrega funcional da IA.
+**Próxima etapa obrigatória:** repetir uma chamada de teste à Gemini Developer API sem habilitar faturamento e validar a interpretação real dos fatos estruturados. Após a validação técnica, revisar o README diretamente no GitHub, conferir os itens ainda pendentes de encerramento e preparar uma publicação de LinkedIn apresentando o projeto. Só então considerar o Dash Vendas encerrado e migrar o foco para os outros projetos. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais.
 
 ## 2. Fonte e definição da métrica
 
@@ -261,9 +261,9 @@ Regras:
    - [ ] Validar também casos de borda na interface: pergunta ambígua/inválida, ausência de CSV, cobertura parcial e limpeza da conversa.
    - [ ] Melhorar a apresentação textual do diagnóstico para distinguir crescimento acumulado de quedas diárias.
 8. [x] Implementar a integração opcional com Gemini e documentar arquitetura, segurança, custos/limites e configuração.
-9. [ ] Executar os seis novos testes simulados do LLM e validar localmente uma chamada real com chave própria; revisar o fallback sem chave.
+9. [ ] Executar os seis novos testes simulados do LLM e validar localmente uma chamada real com chave própria; revisar o fallback sem chave. A primeira tentativa real foi feita em 24/11/2026 e retornou `503 UNAVAILABLE` (mensagem do provedor: modelo temporariamente com alta demanda); não houve resposta do modelo.
 
-**Próxima tarefa técnica:** atualizar dependências e executar a suíte completa de 35 testes; configurar a chave no nível gratuito do Google AI Studio e validar uma pergunta real sem habilitar faturamento. Não adicionar cartão nem vincular conta de cobrança. Se a conta não oferecer acesso gratuito ao modelo, manter o modo determinístico e avaliar alternativas locais sem custo. Depois, testar fallback sem chave/erro, limites de escopo e perguntas ambíguas. Melhorar a comunicação do diagnóstico para distinguir o acumulado das quedas diárias. Não executar SQL livre gerada pelo modelo.
+**Próxima tarefa técnica:** repetir, após aguardar, uma única chamada de teste à API para verificar se o `503 UNAVAILABLE` foi transitório. O painel do Google AI Studio mostrou o projeto no nível gratuito e uso dentro dos limites exibidos (1/5 RPM, 686/250K TPM e 1/20 RPD); portanto, o erro observado foi de disponibilidade do serviço, não evidência de limite excedido. Não adicionar cartão nem vincular faturamento. Se o provedor continuar indisponível, manter o modo determinístico e não insistir em chamadas repetidas. Em seguida, executar os seis testes simulados do LLM e a suíte completa de 35 testes; testar fallback sem chave/erro, limites de escopo e perguntas ambíguas. Melhorar a comunicação do diagnóstico para distinguir o acumulado das quedas diárias. Não executar SQL livre gerada pelo modelo.
 
 **Critério de conclusão:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
 
@@ -272,3 +272,30 @@ Regras:
 A fundação analítica/preditiva, o dashboard local e o motor determinístico estão concluídos. O **Projeto Dash Vendas como solução Dados + IA permanece em andamento até a entrega e validação da IA Analista conversacional**.
 
 Depois da IA funcional, podem ser avaliadas como expansões opcionais: publicar/hospedar o dashboard, conectar atualização operacional de dados ao BigQuery, incluir dimensões adicionais com auditoria e avaliar inferência local/WebGPU. Essas expansões não são pré-requisitos para concluir o MVP da IA Analista.
+
+
+## 12. Continuidade e encerramento do portfólio (24/11/2026)
+
+### Diagnóstico da primeira chamada real ao Gemini
+
+- A chave foi configurada localmente em `.streamlit/secrets.toml`.
+- O arquivo foi confirmado como ignorado pelo Git com `git check-ignore .streamlit/secrets.toml`; não deve ser publicado.
+- O dashboard Streamlit iniciou normalmente e os indicadores determinísticos do Python foram exibidos.
+- Uma chamada de teste direta ao modelo `gemini-3.8-flash` retornou `503 UNAVAILABLE`, com mensagem do provedor indicando alta demanda temporária ("This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.").
+- O painel de uso do AI Studio exibiu nível gratuito, 1 solicitação, 686 tokens de entrada, 0 tokens de saída e 1 erro 503. O painel de limites exibiu 1/5 RPM, 686/250K TPM e 1/20 RPD. Esses números são a evidência visual apresentada pela usuária; não indicam cota excedida.
+- Interpretação atual: a chamada alcançou o serviço e falhou por indisponibilidade temporária reportada pelo provedor. Não há evidência, até aqui, de chave inválida ou limite excedido. A integração ainda não foi validada com uma resposta válida.
+- Conduta: aguardar antes de uma nova tentativa; não habilitar faturamento, não adicionar cartão e não repetir chamadas em sequência. Se persistir a indisponibilidade, preservar o modo determinístico gratuito e reavaliar sem custos.
+
+### Pendências para declarar o Projeto Dash Vendas concluído
+
+1. [ ] Fazer uma nova tentativa controlada ao Gemini e confirmar uma resposta válida, sem cobrança.
+2. [ ] Executar os seis testes simulados de `tests/test_llm.py` e conferir a suíte completa esperada de 35 testes.
+3. [ ] Concluir os testes de borda da IA Analista: pergunta ambígua/inválida, ausência de CSV, cobertura parcial, limpeza da conversa e fallback sem chave/erro.
+4. [ ] Melhorar a apresentação textual do diagnóstico, separando variação acumulada e quedas diárias.
+5. [ ] Fazer revisão final do README no GitHub: conferir arquitetura, resultados, limitações, status real de cada etapa, comandos de execução, configuração segura da chave e descrição da IA. Não marcar como concluído o que ainda não foi validado.
+6. [ ] Preparar e publicar o post do LinkedIn, apresentando problema, dados públicos Olist, arquitetura Dados + IA, decisões de segurança, resultados e limitações de forma verdadeira e adequada ao portfólio.
+7. [ ] Fazer uma conferência final do repositório e declarar o Dash Vendas encerrado somente depois dos itens aplicáveis acima.
+
+**Ordem combinada:** nova tentativa controlada do Gemini → validações técnicas e casos de borda → revisão/atualização do README no GitHub → criação do post do LinkedIn → checklist final de encerramento → migração do foco para os outros projetos.
+
+Não iniciar os outros projetos como prioridade principal antes dessa revisão final, salvo solicitação expressa da usuária.
