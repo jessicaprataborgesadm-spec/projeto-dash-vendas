@@ -14,7 +14,7 @@ Construir uma solução de Dados + IA com dados públicos do e-commerce Olist pa
 
 **Status atual:** a fundação analítica e preditiva está concluída e validada; o dashboard local está concluído. A IA Analista possui motor determinístico, roteador por regras, interface conversacional validada e integração opcional com Gemini publicada. A chave foi configurada localmente e a primeira chamada real chegou à API, mas retornou `503 UNAVAILABLE` por alta demanda temporária do modelo. **O projeto completo ainda NÃO está concluído:** falta obter uma resposta válida do LLM em nova tentativa, além de concluir os casos de borda e a melhoria de comunicação do diagnóstico.
 
-**Próxima etapa obrigatória:** repetir uma chamada de teste à Gemini Developer API sem habilitar faturamento e validar a interpretação real dos fatos estruturados. Após a validação técnica, revisar o README diretamente no GitHub, conferir os itens ainda pendentes de encerramento e preparar uma publicação de LinkedIn apresentando o projeto. Só então considerar o Dash Vendas encerrado e migrar o foco para os outros projetos. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais.
+**Decisão atual:** encerrar as tentativas de conexão remota com Gemini após duas respostas `503 UNAVAILABLE`; não realizar novas chamadas, não habilitar faturamento e não adicionar cartão. O encerramento do portfólio seguirá com a limitação documentada, a revisão/atualização do README no GitHub e a preparação de uma publicação de LinkedIn. Depois da conferência final desses materiais, migrar o foco para os outros projetos. Inferência local/WebGPU, hospedagem pública e automação de atualização dos dados são expansões opcionais.
 
 ## 2. Fonte e definição da métrica
 
@@ -221,7 +221,7 @@ Testes do roteador: `tests/test_router.py`, 14 testes. A suíte combinada passou
 
 **Interface conversacional integrada e validada localmente:** a página `IA Analista` usa `st.chat_input` e `st.chat_message`, carrega as fontes analíticas apenas quando acessada, mantém o histórico durante a sessão do Streamlit e permite limpar a conversa. As sete intenções do MVP foram exercitadas manualmente no dashboard e uma pergunta por estado foi corretamente recusada por ausência da dimensão geográfica. Os seis painéis originais permanecem no menu.
 
-**Integração Gemini implementada, ainda sem validação remota:** `ia_analista/llm.py` usa o SDK oficial `google-genai` e o modelo `gemini-3.8-flash`. O LLM recebe a pergunta atual e apenas os campos `status`, `intent`, `metric`, `period`, `facts`, `coverage` e `limitations`, além de eventuais limitações do roteamento. Não recebe CSVs, DataFrames, histórico completo, ferramentas ou acesso a SQL. A saída é JSON com resumo, pontos-chave e cuidados; algarismos são rejeitados na narrativa para manter os números exclusivamente nos componentes calculados pelo Python. Se não houver chave ou a chamada falhar, a interface mantém os resultados determinísticos.
+**Integração Gemini implementada, mas não validada remotamente devido a indisponibilidade do provedor:** `ia_analista/llm.py` usa o SDK oficial `google-genai` e o modelo `gemini-3.8-flash`. O LLM recebe a pergunta atual e apenas os campos `status`, `intent`, `metric`, `period`, `facts`, `coverage` e `limitations`, além de eventuais limitações do roteamento. Não recebe CSVs, DataFrames, histórico completo, ferramentas ou acesso a SQL. A saída é JSON com resumo, pontos-chave e cuidados; algarismos são rejeitados na narrativa para manter os números exclusivamente nos componentes calculados pelo Python. Se não houver chave ou a chamada falhar, a interface mantém os resultados determinísticos.
 
 **Credenciais:** `GEMINI_API_KEY` e, opcionalmente, `GEMINI_MODEL` devem ficar em `.streamlit/secrets.toml` local ou variáveis de ambiente. O `.gitignore` já exclui `.streamlit/secrets.toml` e `.env`. Nunca publicar nem compartilhar a chave.
 
@@ -263,7 +263,7 @@ Regras:
 8. [x] Implementar a integração opcional com Gemini e documentar arquitetura, segurança, custos/limites e configuração.
 9. [ ] Executar os seis novos testes simulados do LLM e validar localmente uma chamada real com chave própria; revisar o fallback sem chave. A primeira tentativa real foi feita em 24/11/2026 e retornou `503 UNAVAILABLE` (mensagem do provedor: modelo temporariamente com alta demanda); não houve resposta do modelo.
 
-**Próxima tarefa técnica:** repetir, após aguardar, uma única chamada de teste à API para verificar se o `503 UNAVAILABLE` foi transitório. O painel do Google AI Studio mostrou o projeto no nível gratuito e uso dentro dos limites exibidos (1/5 RPM, 686/250K TPM e 1/20 RPD); portanto, o erro observado foi de disponibilidade do serviço, não evidência de limite excedido. Não adicionar cartão nem vincular faturamento. Se o provedor continuar indisponível, manter o modo determinístico e não insistir em chamadas repetidas. Em seguida, executar os seis testes simulados do LLM e a suíte completa de 35 testes; testar fallback sem chave/erro, limites de escopo e perguntas ambíguas. Melhorar a comunicação do diagnóstico para distinguir o acumulado das quedas diárias. Não executar SQL livre gerada pelo modelo.
+**Próxima tarefa de encerramento:** executar os seis testes simulados do LLM e a suíte completa de testes; testar fallback sem chave/erro, limites de escopo e perguntas ambíguas; melhorar a comunicação do diagnóstico para distinguir o acumulado das quedas diárias; revisar e atualizar o README no GitHub; preparar o post do LinkedIn; fazer conferência final do repositório. A chamada real Gemini fica registrada como não validada por duas respostas 503 do provedor. Não fazer novas chamadas, não executar SQL livre gerada pelo modelo e não habilitar billing.
 
 **Critério de conclusão:** o usuário consegue fazer as perguntas do MVP no dashboard e recebe respostas em linguagem natural ancoradas em resultados determinísticos, com período, métrica e limitações claros.
 
@@ -283,7 +283,7 @@ Depois da IA funcional, podem ser avaliadas como expansões opcionais: publicar/
 - O dashboard Streamlit iniciou normalmente e os indicadores determinísticos do Python foram exibidos.
 - Uma chamada de teste direta ao modelo `gemini-3.8-flash` retornou `503 UNAVAILABLE`, com mensagem do provedor indicando alta demanda temporária ("This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.").
 - O painel de uso do AI Studio exibiu nível gratuito, 1 solicitação, 686 tokens de entrada, 0 tokens de saída e 1 erro 503. O painel de limites exibiu 1/5 RPM, 686/250K TPM e 1/20 RPD. Esses números são a evidência visual apresentada pela usuária; não indicam cota excedida.
-- Interpretação atual: a chamada alcançou o serviço e falhou por indisponibilidade temporária reportada pelo provedor. Não há evidência, até aqui, de chave inválida ou limite excedido. A integração ainda não foi validada com uma resposta válida.
+- Interpretação atual: a chamada alcançou o serviço e falhou por indisponibilidade temporária reportada pelo provedor. Não há evidência, até aqui, de chave inválida ou limite excedido. A integração não foi validada com uma resposta válida. A usuária decidiu não realizar novas tentativas.
 - Conduta: aguardar antes de uma nova tentativa; não habilitar faturamento, não adicionar cartão e não repetir chamadas em sequência. Se persistir a indisponibilidade, preservar o modo determinístico gratuito e reavaliar sem custos.
 
 ### Pendências para declarar o Projeto Dash Vendas concluído
@@ -299,3 +299,44 @@ Depois da IA funcional, podem ser avaliadas como expansões opcionais: publicar/
 **Ordem combinada:** nova tentativa controlada do Gemini → validações técnicas e casos de borda → revisão/atualização do README no GitHub → criação do post do LinkedIn → checklist final de encerramento → migração do foco para os outros projetos.
 
 Não iniciar os outros projetos como prioridade principal antes dessa revisão final, salvo solicitação expressa da usuária.
+
+
+## 13. Resultado final da tentativa Gemini e decisão de encerramento (24/11/2026)
+
+### Segunda e última execução manual do teste
+
+A usuária executou a segunda tentativa manual de validação real, conforme combinado como última tentativa. O traceback terminou em:
+
+`google.genai.errors.ServerError: 503 UNAVAILABLE`
+
+Mensagem retornada pelo provedor:
+
+`This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.`
+
+A execução anterior já havia retornado o mesmo código e mensagem. Portanto:
+- duas execuções manuais de teste foram feitas;
+- as duas falharam com 503 por alta demanda reportada pelo provedor;
+- nenhuma resposta textual do modelo foi obtida;
+- não há evidência nos logs apresentados de chave inválida ou de cota excedida;
+- o painel do AI Studio anteriormente mostrou o nível gratuito e uso abaixo dos limites exibidos;
+- a integração Gemini permanece implementada no código, mas **não pode ser descrita como validada em produção nem como funcionando em chamada real**.
+
+### Decisão da usuária
+
+- Encerrar as tentativas de conexão com Gemini nesta versão.
+- Não fazer outras chamadas de teste.
+- Não configurar faturamento, não adicionar cartão e não realizar upgrade.
+- Preservar a interface conversacional, o roteador e o motor analítico determinístico, que continuam sendo a via funcional do dashboard.
+- Registrar Gemini como integração opcional implementada, porém não validada por indisponibilidade externa do modelo.
+- Encerrar o projeto de portfólio com a limitação explícita, após concluir a revisão documental e a apresentação pública.
+
+### Plano final acordado
+
+1. [ ] Executar os seis testes simulados do LLM e a suíte completa de testes, incluindo o fallback sem chamada real.
+2. [ ] Concluir os testes de borda relevantes e o ajuste de comunicação do diagnóstico (acumulado versus variações diárias).
+3. [ ] Revisar o README no GitHub, corrigindo o status desatualizado da chave e da validação Gemini, confirmando arquitetura, resultados, limitações e instruções.
+4. [ ] Criar o post do LinkedIn com descrição fiel: IA Analista determinística funcional; integração Gemini desenvolvida, mas não validada em chamadas reais devido a duas respostas 503 do provedor; sem billing e sem cartão.
+5. [ ] Fazer a conferência final e considerar o Dash Vendas encerrado nesta versão.
+6. [ ] Depois, migrar o foco para os demais projetos.
+
+**Critério de comunicação pública:** nunca afirmar que a Gemini respondeu com sucesso, que a integração remota foi validada ou que a IA generativa está operacional. É correto dizer que a integração foi implementada e que sua validação real foi bloqueada pela indisponibilidade 503 do provedor. Não ocultar que a IA Analista mantém a camada determinística em funcionamento.
