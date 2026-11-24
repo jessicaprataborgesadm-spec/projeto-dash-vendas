@@ -4,7 +4,7 @@ Projeto de portfólio em **Análise de Dados, Engenharia Analítica e Machine Le
 
 O objetivo é transformar dados transacionais em uma base analítica diária, investigar padrões de vendas e avaliar abordagens para previsão de faturamento, documentando decisões, limitações e resultados.
 
-> **Status desta versão:** fundação analítica/preditiva e dashboard local concluídos. A IA Analista determinística (roteamento por regras, cálculos em Python e interface conversacional) foi validada nas sete intenções do MVP e em uma pergunta fora do escopo. A integração com Gemini foi implementada, mas duas tentativas reais retornaram `503 UNAVAILABLE`, com mensagem do provedor sobre alta demanda. Não foi obtida resposta generativa e, por decisão do projeto, não haverá novas tentativas nem configuração de faturamento. A execução dos seis testes simulados do LLM, a suíte completa e alguns casos de borda ainda precisam ser revisados. O dashboard é local, não está hospedado e não consulta o BigQuery em tempo real.
+> **Status desta versão:** fundação analítica/preditiva e dashboard local concluídos. A IA Analista determinística (roteamento por regras, cálculos em Python e interface conversacional) foi validada nas sete intenções do MVP e em uma pergunta fora do escopo. Duas tentativas reais com `gemini-3.8-flash` retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor. A usuária autorizou uma única tentativa adicional controlada com `gemini-3.5-flash-lite`, selecionado localmente pelo arquivo `.streamlit/secrets.toml`. A tentativa ainda não foi executada. Não haverá cartão, billing ou upgrade; se a nova tentativa falhar, não haverá outra chamada nesta versão. Permanecem pendentes os seis testes simulados do LLM, a suíte completa e alguns casos de borda. O dashboard é local, não está hospedado e não consulta o BigQuery em tempo real.
 
 ## Problema de negócio
 
@@ -190,7 +190,7 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - A validação temporal contém poucas janelas e o Random Forest não venceu todas.
 - A análise da Black Friday foi feita sobre a base diária agregada; não foi concluída a decomposição dos pedidos individuais diretamente nas tabelas RAW.
 - A IA Analista determinística usa roteamento por regras e cálculos em Python. A interface conversacional foi validada nas sete intenções do MVP e em uma pergunta fora do escopo.
-- A integração opcional com Gemini Developer API (`gemini-3.8-flash`) está implementada no código, mas duas tentativas reais retornaram `503 UNAVAILABLE` com mensagem de alta demanda do provedor. Nenhuma resposta generativa foi obtida; por decisão do projeto, não haverá novas tentativas nem ativação de billing nesta versão.
+- A integração opcional com Gemini Developer API está implementada no código. Duas tentativas reais com `gemini-3.8-flash` retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor. O modelo candidato da última tentativa autorizada foi alterado localmente para `gemini-3.5-flash-lite` por meio de `GEMINI_MODEL` em `.streamlit/secrets.toml`; a chamada ainda está pendente. Se falhar, não haverá novas tentativas. Não habilitar billing, cartão ou upgrade.
 - Permanecem pendentes a execução dos seis testes simulados do LLM, a suíte completa de testes, alguns casos de borda da interface e o ajuste textual do diagnóstico para distinguir o acumulado das quedas diárias.
 
 ## Roadmap do Projeto Dash Vendas
@@ -216,9 +216,11 @@ O repositório contém as consultas SQL 01 a 18, os documentos listados acima e 
 - [x] Executar localmente 29 testes do motor, roteador e sintaxe do `app.py`.
 - [ ] Executar os seis novos testes simulados do LLM (`tests/test_llm.py`), sem consumir tokens.
 - [x] Criar roteador determinístico por regras explícitas e validação de parâmetros (`ia_analista/router.py`).
-- [x] Escolher Gemini Developer API e modelo `gemini-3.8-flash` para a primeira integração.
+- [x] Escolher Gemini Developer API e implementar a integração inicial com `gemini-3.8-flash`.
 - [x] Implementar a chamada opcional ao Gemini somente com a pergunta atual e o envelope determinístico, sem CSVs, histórico completo, ferramentas ou SQL.
-- [x] Configurar a chave local no nível gratuito, sem billing, e realizar duas tentativas reais de chamada ao Gemini. Ambas retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor; nenhuma resposta generativa foi obtida. Por decisão da usuária, não serão feitas novas tentativas nem ativado billing.
+- [x] Configurar a chave local no nível gratuito, sem billing, e realizar duas tentativas com `gemini-3.8-flash`; ambas retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor.
+- [x] Alterar localmente a configuração `GEMINI_MODEL` para `gemini-3.5-flash-lite`, sem modificar código Python.
+- [ ] Fazer uma única tentativa controlada com `gemini-3.5-flash-lite`. Se falhar, encerrar os testes remotos desta versão; não habilitar billing.
 - [x] Integrar a interface conversacional ao Streamlit (página `IA Analista`).
 - [x] Validar localmente as sete intenções do MVP e uma pergunta geográfica fora do escopo.
 - [ ] Validar manualmente casos de borda: pergunta ambígua/inválida, CSV ausente, cobertura parcial e limpeza da conversa.
@@ -257,23 +259,35 @@ As decisões do projeto estão em [PROJECT_MEMORY.md](PROJECT_MEMORY.md). O cat�
 
 ### Integração Gemini
 
-A primeira integração usa a **Gemini Developer API** com o modelo `gemini-3.8-flash`, pelo SDK oficial `google-genai`. O LLM atua apenas como camada de interpretação: o Python continua responsável pelos cálculos e validações.
+A camada opcional usa a **Gemini Developer API** pelo SDK oficial `google-genai`. O Python continua responsável por todos os cálculos e validações; o modelo recebe somente a pergunta atual e os campos estruturados do resultado determinístico (`status`, `intent`, `metric`, `period`, `facts`, `coverage` e `limitations`). Não recebe CSVs, DataFrames, histórico completo da conversa, ferramentas ou acesso a SQL. O retorno esperado é JSON; narrativas com algarismos são recusadas para que os números permaneçam sob controle do Python.
 
-O módulo `ia_analista/llm.py` envia somente a pergunta atual e os campos estruturados do resultado determinístico (`status`, `intent`, `metric`, `period`, `facts`, `coverage` e `limitations`). Não envia CSVs, DataFrames, histórico completo da conversa, nem permite ferramentas ou execução de SQL. O retorno é estruturado em JSON. A narrativa do LLM não pode conter algarismos; os números continuam sendo exibidos diretamente pelos componentes calculados no Python.
+#### Trocar o modelo pelo Bloco de Notas (Windows)
 
-Configure a chave somente no ambiente local. A partir de `dash_vendas_python_streamlit_publicacao`, crie `.streamlit/secrets.toml` com:
+O modelo é configurável sem editar `app.py` ou `ia_analista/llm.py`. A aplicação lê `GEMINI_MODEL` do arquivo local `.streamlit/secrets.toml` e passa essa configuração ao módulo de interpretação.
+
+A partir da pasta `dash_vendas_python_streamlit_publicacao`, abra o arquivo no Bloco de Notas:
+
+```cmd
+notepad .streamlit\secrets.toml
+```
+
+O arquivo contém a chave privada e o identificador do modelo:
 
 ```toml
 GEMINI_API_KEY = "SUA_CHAVE"
-GEMINI_MODEL = "gemini-3.8-flash"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 ```
 
-O arquivo `.streamlit/secrets.toml` já está coberto pelo `.gitignore`. **Nunca envie a chave pelo chat nem a publique no GitHub.**
+Para trocar de modelo, edite **somente o valor de `GEMINI_MODEL`**, mantendo a chave intacta. Salve com `Ctrl + S`, encerre o Streamlit com `Ctrl + C` no terminal e inicie novamente o dashboard. O novo identificador será lido na inicialização. Use apenas identificadores publicados na documentação oficial e confirme a disponibilidade e as condições do nível gratuito antes de selecionar outro modelo.
 
-O projeto adotará exclusivamente o nível gratuito da Gemini Developer API. A tabela oficial lista entrada e saída de tokens sem custo para `gemini-3.8-flash` nesse nível, sujeito a limites de uso e disponibilidade da conta. **Não configure faturamento, não vincule cartão e não faça upgrade.** O Google informa que pode usar o conteúdo do nível gratuito para melhorar seus produtos. Por isso, a integração está limitada à pergunta atual e a fatos agregados derivados da base pública Olist. Não envie dados pessoais, confidenciais, chaves ou credenciais. Se o Google exigir configuração de billing ou indicar qualquer cobrança, interrompa e mantenha o modo determinístico.
+O arquivo `.streamlit/secrets.toml` é local e está protegido pelo `.gitignore`; ele **não é enviado ao GitHub**. Nunca publique nem compartilhe a chave em capturas de tela, mensagens ou arquivos versionados.
 
-Preços publicados para `gemini-3.8-flash` no nível Standard: US$ 0,75 por milhão de tokens de entrada e US$ 3,75 por milhão de tokens de saída até 31/12/2026; a página oficial informa US$ 1,50 e US$ 7,50 a partir de 01/01/2027. Preços podem mudar; consulte a [tabela oficial de preços](https://ai.google.dev/gemini-api/docs/pricing).
+#### Modelo configurado nesta tentativa
 
-Links oficiais: [Google AI Studio / chaves de API](https://aistudio.google.com/api-keys) · [SDK Google Gen AI para Python](https://googleapis.github.io/python-genai/) · [preços da Gemini API](https://ai.google.dev/gemini-api/docs/pricing).
+O modelo inicial, `gemini-3.8-flash`, retornou `503 UNAVAILABLE` nas duas tentativas reais feitas em 24/11/2026, com mensagem do provedor indicando alta demanda. Como alternativa, foi selecionado `gemini-3.5-flash-lite` para uma única tentativa final controlada. A documentação oficial do Google lista esse modelo e apresenta entrada e saída sem custo no nível gratuito, sujeito a limites e disponibilidade da conta. Isso não garante que a chamada será aceita ou que o serviço estará disponível. Consulte a [tabela oficial de preços](https://ai.google.dev/gemini-api/docs/pricing).
 
-A chave foi configurada localmente e protegida pelo `.gitignore`. Em 24/11/2026, foram feitas duas tentativas manuais de chamada real ao modelo `gemini-3.8-flash`; ambas retornaram `503 UNAVAILABLE` com a mensagem do provedor de que o modelo estava enfrentando alta demanda. O painel do AI Studio mostrou o projeto no nível gratuito e uso abaixo dos limites exibidos naquele momento. Não foi obtida resposta do modelo, portanto a integração remota não está validada. Por decisão da usuária, não haverá novas tentativas, ativação de billing, associação de cartão ou upgrade nesta versão. Quando o Gemini está indisponível, a interface continua exibindo os fatos e indicadores calculados deterministicamente pelo Python.
+**Regra de custo:** não habilitar billing, não vincular cartão e não fazer upgrade. Se o Google solicitar faturamento, indicar cobrança ou se a chamada falhar novamente, parar e manter a IA Analista determinística.
+
+O Google informa que o conteúdo enviado no nível gratuito pode ser usado para melhorar seus produtos. Por isso, esta integração permanece limitada à pergunta atual e a fatos agregados derivados da base pública Olist. Não enviar dados pessoais, confidenciais, chaves ou credenciais.
+
+Links oficiais: [Google AI Studio / chaves de API](https://aistudio.google.com/api-keys) · [SDK Google Gen AI para Python](https://googleapis.github.io/python-genai/) · [modelos disponíveis](https://ai.google.dev/gemini-api/docs/models) · [preços da Gemini API](https://ai.google.dev/gemini-api/docs/pricing).
