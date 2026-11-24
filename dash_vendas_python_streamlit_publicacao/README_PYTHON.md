@@ -137,15 +137,15 @@ A chave também pode ser fornecida pela variável de ambiente `GEMINI_API_KEY`. 
 
 ### Modelo da tentativa atual
 
-As duas chamadas reais anteriores com `gemini-3.8-flash` retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor. Foi selecionado `gemini-3.5-flash-lite` como alternativa para uma única tentativa adicional controlada. A tabela oficial do Google lista esse modelo com entrada e saída sem custo no nível gratuito, sujeito à disponibilidade e aos limites da conta: [preços oficiais](https://ai.google.dev/gemini-api/docs/pricing). Isso não garante disponibilidade nem sucesso da requisição.
+Duas chamadas anteriores com `gemini-3.8-flash` retornaram `503 UNAVAILABLE` por alta demanda reportada pelo provedor. Após alterar `GEMINI_MODEL` para `gemini-3.5-flash-lite` no arquivo local, a pergunta “Qual foi o faturamento de julho de 2018?” recebeu uma resposta generativa no dashboard. A tela exibiu resumo e pontos-chave do Gemini junto aos indicadores calculados pelo Python. Essa validação confirma um cenário ponta a ponta, mas não substitui os seis testes simulados do LLM nem os testes de borda.
 
-**Custo zero é uma condição do projeto:** não habilitar billing, não adicionar cartão e não fazer upgrade. Se o Google solicitar faturamento ou indicar cobrança, interrompa. Se a chamada com o modelo alternativo falhar, não repetir nesta versão; manter os resultados determinísticos.
+**Custo zero é uma condição do projeto:** não habilitar billing, não adicionar cartão e não fazer upgrade. Se o Google solicitar faturamento ou indicar cobrança, interrompa. Não habilitar billing, não adicionar cartão e não fazer upgrade. O fluxo determinístico continua disponível como fallback.
 
 O Google informa que o conteúdo enviado pelo nível gratuito pode ser usado para melhorar seus produtos. Por isso, a aplicação só envia a pergunta atual e fatos agregados da base pública Olist. Não envie dados pessoais, confidenciais, chaves ou credenciais.
 
 Links: [Google AI Studio](https://aistudio.google.com/api-keys) · [modelos disponíveis](https://ai.google.dev/gemini-api/docs/models) · [preços da API](https://ai.google.dev/gemini-api/docs/pricing).
 
-As cinco fontes analíticas são carregadas somente ao abrir a página IA Analista, por meio de `carregar_fontes()` com cache do Streamlit. Sem chave ou quando a API falha, o dashboard mantém os indicadores e respostas determinísticas do Python. A interpretação generativa não foi validada nas duas chamadas anteriores com `gemini-3.8-flash`; a única tentativa com o modelo alternativo ainda está pendente.
+As cinco fontes analíticas são carregadas somente ao abrir a página IA Analista, por meio de `carregar_fontes()` com cache do Streamlit. Sem chave ou quando a API falha, o dashboard mantém os indicadores e respostas determinísticas do Python. Uma chamada com `gemini-3.5-flash-lite` já foi validada visualmente no dashboard para uma pergunta de evolução mensal; os demais cenários ainda precisam de testes.
 
 Perguntas sem período, ambíguas, inválidas ou fora do escopo recebem o esclarecimento retornado pelo roteador.
 
@@ -168,4 +168,4 @@ Depois inicie o dashboard:
 python -m streamlit run app.py
 ```
 
-A suíte de 29 testes do motor, roteador e sintaxe do `app.py` já passou localmente. Foram adicionados seis testes simulados para a camada Gemini em `tests/test_llm.py`; execute a suíte completa de 35 testes antes de validar a chamada real. Os testes simulados não exigem chave nem consomem tokens.
+A suíte de 29 testes do motor, roteador e sintaxe do `app.py` já passou localmente. Foram adicionados seis testes simulados para a camada Gemini em `tests/test_llm.py`; eles ainda precisam ser executados junto à suíte completa esperada de 35 testes. Os testes simulados não exigem chave nem consomem tokens nem fazem chamadas à API.
